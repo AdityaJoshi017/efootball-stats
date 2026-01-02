@@ -89,27 +89,27 @@ export default function PlayerDetailPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Card className="overflow-hidden">
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-8">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 md:p-8">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
                 <img
                   src={player.image || "/placeholder.svg?height=120&width=120&query=football player"}
                   alt={player.name}
-                  className="w-24 h-34 rounded-none object-cover  border-background shadow-md"
+                  className="w-20 h-28 md:w-24 md:h-34 rounded-none object-cover border-background shadow-md mx-auto md:mx-0"
                 />
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
+                <div className="flex-1 w-full">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                     <div>
                       <h1 className="text-4xl font-bold text-foreground mb-2">{formatPlayerName(player.name)}</h1>
                       <div className="flex items-center gap-4 text-muted-foreground mb-3">
-                        <div className="flex items-center gap-1 text-sm sm:text-base">
+                        <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
                           {player.team === "NAN" ? "Free Agent" : formatPlayerName(player.team)}
                         </div>
-                        <div className="flex items-center gap-1 text-sm sm:text-base">
+                        <div className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
                           {player.position}
                         </div>
-                        <div className="flex items-center gap-1 text-sm sm:text-base">
+                        <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
                           {player.age} years old
                         </div>
@@ -127,10 +127,11 @@ export default function PlayerDetailPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex flex-wrap gap-2 justify-end">
+                    <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:gap-2">
                       <Button
                         variant="outline"
                         size="sm"
+                        className={`w-full md:w-auto ${isFavorite ? "bg-red-300 border-red-300 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-500 dark:hover:bg-red-900/30" : ""}`}
                         onClick={() => {
                           const currentUserRaw = localStorage.getItem("currentUser")
                           if (!currentUserRaw) {
@@ -141,65 +142,59 @@ export default function PlayerDetailPage() {
                           const next = toggleFavouritePlayer(playerId)
                           setIsFavorite(next)
                         }}
-                        className={isFavorite ? "bg-red-300 border-red-300 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-500 dark:hover:bg-red-900/30" : ""}>
+                      >
                         <Heart
-                          className={`w-4 h-4 mr-1 sm:mr-2 ${
+                          className={`w-4 h-4 mr-1 md:mr-2 ${
                             isFavorite ? "fill-red-600 text-red-800" : ""
                           }`}
                         />
-                        <span className="text-foreground">
-                          {isFavorite ? "Favorited" : "Add to Favorites"}
+                        <span className="text-foreground text-xs md:text-sm">
+                          {isFavorite ? "Favorited" : "Fav"}
                         </span>
                       </Button>
 
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/compare?playerId=${playerId}`}>
-                          <ArrowRightLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                          Compare
+                      <Button variant="outline" size="sm" className="w-full md:w-auto" asChild>
+                        <Link href={`/compare?playerId=${playerId}`} className="flex items-center">
+                          <ArrowRightLeft className="w-4 h-4 mr-1 md:mr-2" />
+                          <span className="text-xs md:text-sm">Compare</span>
                         </Link>
                       </Button>
 
-                      {/* <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => router.push('/stats-update')}
-                        className="flex items-center gap-2">
-                        <Edit className="h-4 w-4" />
-                        Update Stats
-                      </Button> */}
                       <Button
                         variant="outline"
                         size="sm"
+                        className="w-full md:w-auto col-span-2 md:col-auto"
                         onClick={() =>
                           router.push(
                             `/stats-update?playerId=${playerId}&playerName=${encodeURIComponent(player.name)}`
                           )
-                        }>
-                        Update Stats
+                        }
+                      >
+                        <span className="text-xs md:text-sm">Update Stats</span>
                       </Button>
-                      <Button variant="outline" size="sm">
-                        <Share2 className="w-4 h-4 mr-1 sm:mr-2" />
-                        Share
+                      <Button variant="outline" size="sm" className="w-full md:w-auto col-span-2 md:col-auto">
+                        <Share2 className="w-4 h-4 mr-1 md:mr-2" />
+                        <span className="text-xs md:text-sm">Share</span>
                       </Button>
                       
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{player.apps}</div>
-                      <div className="text-sm text-muted-foreground">Appearances</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mt-4">
+                    <div className="text-center p-2 bg-muted/20 rounded-lg">
+                      <div className="text-xl md:text-2xl font-bold text-primary">{player.apps}</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">Apps</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{player.goal}</div>
-                      <div className="text-sm text-muted-foreground">Goals</div>
+                    <div className="text-center p-2 bg-muted/20 rounded-lg">
+                      <div className="text-xl md:text-2xl font-bold text-primary">{player.goal}</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">Goals</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{player.assists}</div>
-                      <div className="text-sm text-muted-foreground">Assists</div>
+                    <div className="text-center p-2 bg-muted/20 rounded-lg">
+                      <div className="text-xl md:text-2xl font-bold text-primary">{player.assists}</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">Assists</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">{player.gAPm.toFixed(3)}</div>
-                      <div className="text-sm text-muted-foreground">G+A/Match</div>
+                    <div className="text-center p-2 bg-muted/20 rounded-lg">
+                      <div className="text-xl md:text-2xl font-bold text-primary">{player.gAPm.toFixed(3)}</div>
+                      <div className="text-xs md:text-sm text-muted-foreground">G+A/Match</div>
                     </div>
                   </div>
                 </div>
@@ -209,15 +204,17 @@ export default function PlayerDetailPage() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="rankings">Rankings</TabsTrigger>
-            <TabsTrigger value="similar">Similar Players</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto pb-1">
+            <TabsList className="w-full grid grid-cols-4 min-w-[400px] md:min-w-0">
+              <TabsTrigger value="overview" className="text-xs md:text-sm px-2 py-1">Overview</TabsTrigger>
+              <TabsTrigger value="performance" className="text-xs md:text-sm px-2 py-1">Performance</TabsTrigger>
+              <TabsTrigger value="rankings" className="text-xs md:text-sm px-2 py-1">Rankings</TabsTrigger>
+              <TabsTrigger value="similar" className="text-xs md:text-sm px-2 py-1">Similar</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Career Stats */}
               <Card>
                 <CardHeader>
@@ -228,7 +225,7 @@ export default function PlayerDetailPage() {
                   <CardDescription>Complete eFootball career overview</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Total Goals</span>
@@ -313,7 +310,7 @@ export default function PlayerDetailPage() {
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Goal Scoring</CardTitle>
@@ -392,7 +389,7 @@ export default function PlayerDetailPage() {
                 <CardDescription>How this player ranks among all eFootball players</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 rounded-lg border">
                       <span className="font-medium">Goals Ranking</span>
@@ -449,11 +446,11 @@ export default function PlayerDetailPage() {
                 <div className="space-y-4">
                   {similarPlayers.map((similarPlayer) => (
                     <Link key={similarPlayer.id} href={`/players/${similarPlayer.id}`}>
-                      <div className="flex items-center space-x-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
+                      <div className="flex items-center space-x-3 p-3 md:p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
                         <img
                           src={similarPlayer.image || "/placeholder.svg?height=48&width=48&query=football player"}
                           alt={similarPlayer.name}
-                          className="w-24 h-34 rounded-none object-cover"
+                          className="w-16 h-24 md:w-24 md:h-34 rounded-none object-cover"
                         />
                         <div className="flex-1">
                           <h3 className="font-semibold">{formatPlayerName(similarPlayer.name)}</h3>
