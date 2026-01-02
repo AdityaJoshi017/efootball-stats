@@ -1,3 +1,20 @@
+// /** @type {import('next').NextConfig} */
+// const nextConfig = {
+//   eslint: {
+//     ignoreDuringBuilds: true,
+//   },
+//   typescript: {
+//     ignoreBuildErrors: true,
+//   },
+//   images: {
+//     unoptimized: true,
+//   },
+//   devIndicators: {
+//   buildActivity: false,
+// }
+// }
+
+// export default nextConfig
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -6,12 +23,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  images: {
-    unoptimized: true,
-  },
   devIndicators: {
-  buildActivity: false,
-}
-}
+    buildActivity: false,
+  },
+};
 
-export default nextConfig
+export default nextConfig;
