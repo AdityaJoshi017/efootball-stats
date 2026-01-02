@@ -171,14 +171,15 @@ export default function LeaderboardsPage() {
                         <Badge variant="outline" className="text-xs">
                           {player.cardType}
                         </Badge>
-                      </div>
-                      {showConsistency && (
                         <div>
                           <Badge variant="secondary" className="text-xs">
                             Consistency: {consistency}%
                           </Badge>
                         </div>
-                      )}
+                      </div>
+                      {/* {showConsistency && (
+                        
+                      )} */}
                     </div>
                   </div>
                 </div>
