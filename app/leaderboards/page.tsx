@@ -166,14 +166,18 @@ export default function LeaderboardsPage() {
                     <p className="text-sm text-muted-foreground">
                       {player.position} • {player.team === "NAN" ? "Free Agent" : formatPlayerName(player.team)}
                     </p>
-                    <div className="flex gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {player.cardType}
-                      </Badge>
-                      {showConsistency && (
-                        <Badge variant="secondary" className="text-xs">
-                          Consistency: {consistency}%
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 mt-1">
+                      <div>
+                        <Badge variant="outline" className="text-xs">
+                          {player.cardType}
                         </Badge>
+                      </div>
+                      {showConsistency && (
+                        <div>
+                          <Badge variant="secondary" className="text-xs">
+                            Consistency: {consistency}%
+                          </Badge>
+                        </div>
                       )}
                     </div>
                   </div>
