@@ -1,4 +1,4 @@
-import { Player, playersData } from "C://PROJECTS/New folder/vs(beta)/lib/players-data"
+import { Player, playersData } from "@/lib/players-data"
 
 /* =====================================================
    TYPES
