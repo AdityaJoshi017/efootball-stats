@@ -90,26 +90,26 @@ export default function PlayerDetailPage() {
         <div className="mb-8">
           <Card className="overflow-hidden">
             <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-8">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <img
                   src={player.image || "/placeholder.svg?height=120&width=120&query=football player"}
                   alt={player.name}
                   className="w-24 h-34 rounded-none object-cover  border-background shadow-md"
                 />
                 <div className="flex-1">
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                     <div>
                       <h1 className="text-4xl font-bold text-foreground mb-2">{formatPlayerName(player.name)}</h1>
                       <div className="flex items-center gap-4 text-muted-foreground mb-3">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-sm sm:text-base">
                           <MapPin className="w-4 h-4" />
                           {player.team === "NAN" ? "Free Agent" : formatPlayerName(player.team)}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-sm sm:text-base">
                           <Users className="w-4 h-4" />
                           {player.position}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 text-sm sm:text-base">
                           <Calendar className="w-4 h-4" />
                           {player.age} years old
                         </div>
@@ -127,7 +127,7 @@ export default function PlayerDetailPage() {
                         </div>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2 justify-end">
                       <Button
                         variant="outline"
                         size="sm"
@@ -143,7 +143,7 @@ export default function PlayerDetailPage() {
                         }}
                         className={isFavorite ? "bg-red-300 border-red-300 hover:bg-red-100 dark:bg-red-900/20 dark:border-red-500 dark:hover:bg-red-900/30" : ""}>
                         <Heart
-                          className={`w-4 h-4 mr-2 ${
+                          className={`w-4 h-4 mr-1 sm:mr-2 ${
                             isFavorite ? "fill-red-600 text-red-800" : ""
                           }`}
                         />
@@ -154,7 +154,7 @@ export default function PlayerDetailPage() {
 
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/compare?playerId=${playerId}`}>
-                          <ArrowRightLeft className="w-4 h-4 mr-2" />
+                          <ArrowRightLeft className="w-4 h-4 mr-1 sm:mr-2" />
                           Compare
                         </Link>
                       </Button>
@@ -178,13 +178,13 @@ export default function PlayerDetailPage() {
                         Update Stats
                       </Button>
                       <Button variant="outline" size="sm">
-                        <Share2 className="w-4 h-4 mr-2" />
+                        <Share2 className="w-4 h-4 mr-1 sm:mr-2" />
                         Share
                       </Button>
                       
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">{player.apps}</div>
                       <div className="text-sm text-muted-foreground">Appearances</div>
@@ -209,7 +209,7 @@ export default function PlayerDetailPage() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="rankings">Rankings</TabsTrigger>
@@ -217,7 +217,7 @@ export default function PlayerDetailPage() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {/* Career Stats */}
               <Card>
                 <CardHeader>
@@ -228,7 +228,7 @@ export default function PlayerDetailPage() {
                   <CardDescription>Complete eFootball career overview</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Total Goals</span>
@@ -313,7 +313,7 @@ export default function PlayerDetailPage() {
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Goal Scoring</CardTitle>
@@ -392,7 +392,7 @@ export default function PlayerDetailPage() {
                 <CardDescription>How this player ranks among all eFootball players</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 rounded-lg border">
                       <span className="font-medium">Goals Ranking</span>
