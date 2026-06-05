@@ -107,7 +107,6 @@ Appearances: ${p1.apps} vs ${p2.apps}
   }
 }
 
-  // 🤖 Gemini ONLY for explanations / debates
   // 🤖 n8n AI Agent
 // 🤖 n8n AI Football Analyst
 if (intent === "explain") {
