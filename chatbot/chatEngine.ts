@@ -108,22 +108,32 @@ Appearances: ${p1.apps} vs ${p2.apps}
 }
 
   // 🤖 Gemini ONLY for explanations / debates
-  if (intent === "explain") {
-    try {
-      const res = await fetch("/api/chat/gemini-route", {
+  // 🤖 n8n AI Agent
+if (intent === "explain") {
+  try {
+    const res = await fetch(
+      "https://YOUR-N8N-DOMAIN/webhook/player-chat",
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          messages: [{ role: "user", content: userInput }],
+          question: userInput,
+          players,
         }),
-      })
+      }
+    )
 
-      const data = await res.json()
-      if (data?.reply) return data.reply
-    } catch (e) {
-      console.error("Gemini failed", e)
+    const data = await res.json()
+
+    if (data?.reply) {
+      return data.reply
     }
+  } catch (e) {
+    console.error("Chatbot is not available currently", e)
   }
+}
 
   // 🛡️ Guaranteed fallback
   return "I can help with player stats, rankings, and explanations."
