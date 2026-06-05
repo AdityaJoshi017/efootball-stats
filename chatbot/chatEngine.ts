@@ -109,10 +109,11 @@ Appearances: ${p1.apps} vs ${p2.apps}
 
   // 🤖 Gemini ONLY for explanations / debates
   // 🤖 n8n AI Agent
+// 🤖 n8n AI Football Analyst
 if (intent === "explain") {
   try {
-    const res = await fetch(
-      "https://YOUR-N8N-DOMAIN/webhook/player-chat",
+    const response = await fetch(
+      "https://fifahis650atnrizadotcom.app.n8n.cloud/webhook/5637aa26-8f82-4f11-aa28-b523dd334251",
       {
         method: "POST",
         headers: {
@@ -123,15 +124,27 @@ if (intent === "explain") {
           players,
         }),
       }
-    )
+    );
 
-    const data = await res.json()
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    const data = await response.json();
 
     if (data?.reply) {
-      return data.reply
+      return data.reply;
     }
-  } catch (e) {
-    console.error("Chatbot is not available currently", e)
+
+    if (data?.output) {
+      return data.output;
+    }
+
+    return "I couldn't generate a response for that question.";
+  } catch (error) {
+    console.error("n8n chatbot error:", error);
+
+    return "The AI football analyst is currently unavailable. Please try again later.";
   }
 }
 
