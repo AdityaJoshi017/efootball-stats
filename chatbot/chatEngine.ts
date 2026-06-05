@@ -131,13 +131,14 @@ Appearances: ${p1.apps} vs ${p2.apps}
 
   // 🤖 n8n AI Agent
 // 🤖 n8n AI Football Analyst
+// 🤖 n8n AI Football Analyst
 if (intent === "explain") {
+  try {
+    console.log("CALLING N8N", {
+      question: userInput,
+      playersCount: players.length,
+    });
 
-  console.log("CALLING N8N", {
-    question: userInput,
-    playersCount: players.length,
-  })  
-   try {
     const response = await fetch(
       "https://fifahis650atnrizadotcom.app.n8n.cloud/webhook/5637aa26-8f82-4f11-aa28-b523dd334251",
       {
@@ -152,25 +153,17 @@ if (intent === "explain") {
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`Request failed: ${response.status}`);
-    }
+    console.log("N8N STATUS:", response.status);
 
-    const data = await response.json();
+    const rawText = await response.text();
 
-    if (data?.reply) {
-      return data.reply;
-    }
+    console.log("N8N RAW RESPONSE:", rawText);
 
-    if (data?.output) {
-      return data.output;
-    }
-
-    return "I couldn't generate a response for that question.";
+    return rawText || "Empty response from n8n";
   } catch (error) {
-    console.error("n8n chatbot error:", error);
+    console.error("N8N ERROR:", error);
 
-    return "The AI football analyst is currently unavailable. Please try again later.";
+    return "The AI football analyst is currently unavailable.";
   }
 }
 
