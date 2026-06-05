@@ -64,8 +64,30 @@ const resolveFact = (key: FactKey, players: Player[]): string => {
 ========================= */
 
 const detectIntent = (input: string) => {
-  if (input.startsWith("why") || input.includes("better")) return "explain"
-  return "fact"
+  const aiKeywords = [
+    "why",
+    "better",
+    "compare",
+    "rank",
+    "ranking",
+    "best",
+    "worst",
+    "analysis",
+    "underrated",
+    "overrated",
+    "count",
+    "how many",
+    "player count",
+    "team",
+    "xi",
+    "lineup",
+  ]
+
+  return aiKeywords.some(keyword =>
+    input.includes(keyword)
+  )
+    ? "explain"
+    : "fact"
 }
 
 /* =========================
@@ -110,7 +132,12 @@ Appearances: ${p1.apps} vs ${p2.apps}
   // 🤖 n8n AI Agent
 // 🤖 n8n AI Football Analyst
 if (intent === "explain") {
-  try {
+
+  console.log("CALLING N8N", {
+    question: userInput,
+    playersCount: players.length,
+  })  
+   try {
     const response = await fetch(
       "https://fifahis650atnrizadotcom.app.n8n.cloud/webhook/5637aa26-8f82-4f11-aa28-b523dd334251",
       {
