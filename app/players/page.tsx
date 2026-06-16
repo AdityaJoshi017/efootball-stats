@@ -20,6 +20,8 @@ import { usePlayers, type Player } from "@/lib/use-players"
 import { assignDistinctArchetypes, getPlayerArchetype, PLAYER_ARCHETYPES, getGOATPlayer } from "@/lib/player-archetypes"
 import { calculatePlayerRating } from "@/lib/leaderboard-utils"
 import { buildLeaderboardBadges, selectBestBadge } from "@/lib/leaderboard-badges"
+import { PlayerListSkeletons } from "@/components/skeletons/player-card-skeleton"
+import { PlayerFilterPanel } from "@/components/player-filter-panel"
 type SortKey =
   | "name"
   | "goal"
@@ -42,29 +44,34 @@ const formatPlayerName = (name: string) => {
 
 export default function PlayersPage() {
   const searchParams = useSearchParams()
-  const { players: playersData } = usePlayers()
+  const { players: playersData, isLoading } = usePlayers()
   const [searchTerm, setSearchTerm] = useState("")
   
   // Get team from URL parameter
-  const initialTeam = searchParams?.get('team') || "all"
-  const [selectedPosition, setSelectedPosition] = useState<string>("all")
-  const [selectedCardType, setSelectedCardType] = useState<string>("all")
-  const [selectedTeam, setSelectedTeam] = useState<string>(initialTeam)
-  const [selectedArchetype, setSelectedArchetype] = useState<string>("all")
-  const [ageRange, setAgeRange] = useState([18, 40])
-  const [goalsRange, setGoalsRange] = useState([0, 2000])
-  const [assistsRange, setAssistsRange] = useState([0, 1000])
+  const initialTeam = searchParams?.get('team') || undefined
+  const [filters, setFilters] = useState({
+    position: undefined as string | undefined,
+    team: initialTeam,
+    cardType: undefined as string | undefined,
+    archetype: undefined as string | undefined,
+    minAge: undefined as number | undefined,
+    maxAge: undefined as number | undefined,
+    minGoals: undefined as number | undefined,
+    maxGoals: undefined as number | undefined,
+    minAssists: undefined as number | undefined,
+    maxAssists: undefined as number | undefined,
+  })
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   
-  // Update selectedTeam when URL parameter changes
+  // Update team when URL parameter changes
   useEffect(() => {
     const team = searchParams?.get('team')
     if (team) {
-      setSelectedTeam(team)
+      setFilters((prev) => ({ ...prev, team }))
     }
   }, [searchParams])
 
@@ -98,16 +105,16 @@ export default function PlayersPage() {
 
     return (
       matchesSearch &&
-      (selectedPosition === "all" || player.position === selectedPosition) &&
-      (selectedCardType === "all" || player.cardType === selectedCardType) &&
-      (selectedTeam === "all" || player.team.toLowerCase() === selectedTeam.toLowerCase()) &&
-      (selectedArchetype === "all" || archetype.name === selectedArchetype) &&
-      player.age >= ageRange[0] &&
-      player.age <= ageRange[1] &&
-      player.goal >= goalsRange[0] &&
-      player.goal <= goalsRange[1] &&
-      player.assists >= assistsRange[0] &&
-      player.assists <= assistsRange[1]
+      (!filters.position || player.position === filters.position) &&
+      (!filters.cardType || player.cardType === filters.cardType) &&
+      (!filters.team || player.team.toLowerCase() === filters.team.toLowerCase()) &&
+      (!filters.archetype || archetype.name === filters.archetype) &&
+      (!filters.minAge || player.age >= filters.minAge) &&
+      (!filters.maxAge || player.age <= filters.maxAge) &&
+      (!filters.minGoals || player.goal >= filters.minGoals) &&
+      (!filters.maxGoals || player.goal <= filters.maxGoals) &&
+      (!filters.minAssists || player.assists >= filters.minAssists) &&
+      (!filters.maxAssists || player.assists <= filters.maxAssists)
     )
   })
 
@@ -133,13 +140,7 @@ export default function PlayersPage() {
 }, [
   playersData,
   searchTerm,
-  selectedPosition,
-  selectedCardType,
-  selectedTeam,
-  selectedArchetype,
-  ageRange,
-  goalsRange,
-  assistsRange,
+  filters,
   sortBy,
   sortOrder,
   goatPlayer,
@@ -148,26 +149,34 @@ export default function PlayersPage() {
 
   const clearFilters = () => {
     setSearchTerm("")
-    setSelectedPosition("all")
-    setSelectedCardType("all")
-    setSelectedTeam("all")
-    setSelectedArchetype("all")
-    setAgeRange([18, 40])
-    setGoalsRange([0, 2000])
-    setAssistsRange([0, 1000])
+    setFilters({
+      position: undefined,
+      team: undefined,
+      cardType: undefined,
+      archetype: undefined,
+      minAge: undefined,
+      maxAge: undefined,
+      minGoals: undefined,
+      maxGoals: undefined,
+      minAssists: undefined,
+      maxAssists: undefined,
+    })
     setSortBy("name")
     setSortOrder("asc")
   }
 
   const activeFiltersCount = [
     searchTerm !== "",
-    selectedPosition !== "all",
-    selectedCardType !== "all",
-    selectedTeam !== "all",
-    selectedArchetype !== "all",
-    ageRange[0] !== 18 || ageRange[1] !== 40,
-    goalsRange[0] !== 0 || goalsRange[1] !== 2000,
-    assistsRange[0] !== 0 || assistsRange[1] !== 1000,
+    filters.position !== undefined,
+    filters.cardType !== undefined,
+    filters.team !== undefined,
+    filters.archetype !== undefined,
+    filters.minAge !== undefined,
+    filters.maxAge !== undefined,
+    filters.minGoals !== undefined,
+    filters.maxGoals !== undefined,
+    filters.minAssists !== undefined,
+    filters.maxAssists !== undefined,
   ].filter(Boolean).length
 
   const PlayerCard = ({ player }: { player: Player }) => {
@@ -508,112 +517,18 @@ export default function PlayersPage() {
 
           {/* Advanced Filters */}
           {showFilters && (
-            <Card className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Player Archetype</label>
-                  <Select value={selectedArchetype} onValueChange={setSelectedArchetype}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Archetypes" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Archetypes</SelectItem>
-                      {availableArchetypes.map((archetype) => (
-                        <SelectItem key={archetype.name} value={archetype.name}>
-                          {archetype.emoji} {archetype.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Position</label>
-                  <Select value={selectedPosition} onValueChange={setSelectedPosition}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Positions" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Positions</SelectItem>
-                      {positions.map((position) => (
-                        <SelectItem key={position} value={position}>
-                          {position}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Card Type</label>
-                  <Select value={selectedCardType} onValueChange={setSelectedCardType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Card Types" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Card Types</SelectItem>
-                      {cardTypes.map((cardType) => (
-                        <SelectItem key={cardType} value={cardType}>
-                          {cardType}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Team</label>
-                  <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="All Teams" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Teams</SelectItem>
-                      {teams.map((team) => (
-                        <SelectItem key={team} value={team}>
-                          {formatPlayerName(team)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Age Range: {ageRange[0]} - {ageRange[1]} years
-                  </label>
-                  <Slider value={ageRange} onValueChange={setAgeRange} min={18} max={40} step={1} className="w-full" />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Goals Range: {goalsRange[0]} - {goalsRange[1]}
-                  </label>
-                  <Slider
-                    value={goalsRange}
-                    onValueChange={setGoalsRange}
-                    min={0}
-                    max={2000}
-                    step={10}
-                    className="w-full"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Assists Range: {assistsRange[0]} - {assistsRange[1]}
-                  </label>
-                  <Slider
-                    value={assistsRange}
-                    onValueChange={setAssistsRange}
-                    min={0}
-                    max={1000}
-                    step={5}
-                    className="w-full"
-                  />
-                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-1">
+                <PlayerFilterPanel
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  positions={positions}
+                  teams={teams}
+                  cardTypes={cardTypes}
+                  archetypes={availableArchetypes.map((a) => a.name || "")}
+                />
               </div>
-            </Card>
+            </div>
           )}
         </div>
 
@@ -625,7 +540,9 @@ export default function PlayersPage() {
         </div>
 
         {/* Players Display */}
-        {filteredAndSortedPlayers.length > 0 ? (
+        {isLoading ? (
+          <PlayerListSkeletons count={viewMode === "grid" ? 12 : 6} />
+        ) : filteredAndSortedPlayers.length > 0 ? (
           <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
             {filteredAndSortedPlayers.map((player) =>
               viewMode === "grid" ? (
