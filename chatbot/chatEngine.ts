@@ -129,18 +129,17 @@ Appearances: ${p1.apps} vs ${p2.apps}
   }
 }
 
-  // 🤖 n8n AI Agent
-// 🤖 n8n AI Football Analyst
-// 🤖 n8n AI Football Analyst
+  // 🤖 n8n AI Football Analyst
+// Triggers N8N workflow before answering any question
 if (intent === "explain") {
   try {
-    console.log("CALLING N8N", {
+    console.log("[v0] Calling N8N workflow", {
       question: userInput,
       playersCount: players.length,
     });
 
     const response = await fetch(
-      "https://fifahis650atnrizadotcom.app.n8n.cloud/webhook/5637aa26-8f82-4f11-aa28-b523dd334251",
+      "https://adityajoshi17.app.n8n.cloud/webhook/bef82b38-2bf9-4aa7-a61b-28453e24ab11",
       {
         method: "POST",
         headers: {
@@ -153,17 +152,17 @@ if (intent === "explain") {
       }
     );
 
-    console.log("N8N STATUS:", response.status);
+    console.log("[v0] N8N workflow status:", response.status);
 
     const rawText = await response.text();
 
-    console.log("N8N RAW RESPONSE:", rawText);
+    console.log("[v0] N8N workflow response:", rawText);
 
-    return rawText || "Empty response from n8n";
+    return rawText || "Empty response from N8N workflow";
   } catch (error) {
-    console.error("N8N ERROR:", error);
+    console.error("[v0] N8N workflow error:", error);
 
-    return "The AI football analyst is currently unavailable.";
+    return "The AI analysis workflow is currently unavailable.";
   }
 }
 

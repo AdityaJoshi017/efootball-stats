@@ -560,22 +560,30 @@ const processMessage = async (userInput: string) => {
     return "I couldn’t match this exactly. Try rephrasing like: 'Top 5 CFs by goals' or 'Most assists by AMF'."
   }
   // ===============================
-  // 2️⃣ GEMINI (EXPLANATIONS / EDGE)
+  // 2️⃣ N8N WORKFLOW (AI ANALYSIS)
   // ===============================
   try {
-    const response = await fetch('/api/chat/gemini-route', {
+    console.log("[v0] Triggering N8N workflow for query:", userInput)
+    
+    const response = await fetch('https://adityajoshi17.app.n8n.cloud/webhook/bef82b38-2bf9-4aa7-a61b-28453e24ab11', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        messages: [{ role: 'user', content: userInput }]
+        question: userInput,
+        players: playersData,
       })
     })
 
-    const data = await response.json()
-    if (data?.reply) return data.reply
+    console.log("[v0] N8N webhook status:", response.status)
+
+    const result = await response.text()
+    
+    console.log("[v0] N8N webhook response:", result)
+
+    if (result) return result
 
   } catch (error) {
-    console.error("Gemini failed:", error)
+    console.error("[v0] N8N workflow error:", error)
   }
 
   // ===============================
