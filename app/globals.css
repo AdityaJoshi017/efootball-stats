@@ -150,4 +150,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  ::selection {
+    background-color: #ffff00;
+    color: #000000;
+  }
+  ::-moz-selection {
+    background-color: #ffff00;
+    color: #000000;
+  }
 }
