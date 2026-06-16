@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { PlayerSearch } from "@/components/player-search"
 import { Moon, Sun, LogOut, User, Menu, X } from "lucide-react"
 
 export function Header() {
@@ -69,12 +70,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 py-4">
-        <nav className="flex items-center justify-between">
+        <nav className="flex items-center justify-between gap-6">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="text-2xl font-bold text-primary">
+            <Link href="/" className="text-2xl font-bold text-primary whitespace-nowrap">
               eFootball Stats
             </Link>
-            <div className="hidden md:flex space-x-6">
+            <div className="hidden lg:flex space-x-6">
               <Link href="/players" className="text-sm font-medium hover:text-primary transition-colors">
                 PLAYERS
               </Link>
@@ -94,6 +95,10 @@ export function Header() {
                 IMPORT
               </Link> */}
             </div>
+          </div>
+
+          <div className="flex-1 hidden md:block">
+            <PlayerSearch />
           </div>
 
           <div className="flex items-center space-x-4">
@@ -178,6 +183,9 @@ export function Header() {
 
         {isMobileNavOpen && (
           <div className="mt-4 md:hidden rounded-lg border bg-background p-3">
+            <div className="mb-4 md:hidden">
+              <PlayerSearch />
+            </div>
             <div className="flex flex-col gap-2">
               <Link
                 href="/players"
