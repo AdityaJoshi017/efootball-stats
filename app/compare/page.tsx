@@ -39,6 +39,8 @@ import {
 } from "recharts"
 import { Search, Plus, X, Users, Trophy, Target, Zap, BarChart3, Download, Sparkles, Filter, Lightbulb } from "lucide-react"
 import { usePlayers, type Player } from "@/lib/use-players"
+import { PlayerComparisonCharts } from "@/components/player-comparison-charts"
+import { ComparisonExportShare } from "@/components/comparison-export-share"
 // import { playersData, type Player } from "@/lib/players-data"
 const PRESETS = [
   {
@@ -865,6 +867,14 @@ export default function ComparePage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* 2-Player Comparison with Charts and Export */}
+            {selectedPlayers.length === 2 && (
+              <div className="space-y-6">
+                <PlayerComparisonCharts player1={selectedPlayers[0]} player2={selectedPlayers[1]} />
+                <ComparisonExportShare player1={selectedPlayers[0]} player2={selectedPlayers[1]} />
               </div>
             )}
 

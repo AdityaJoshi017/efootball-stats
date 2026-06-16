@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PlayerImage } from "@/components/player-image"
+import { TopPerformersCarousel } from "@/components/top-performers-carousel"
 import { useSearchParams } from 'next/navigation'
 
 export default function HomePage() {
@@ -165,6 +166,10 @@ const leaders = [
           </div>
         </div>
       </section>
+
+      {/* Top Performers Carousel */}
+      <TopPerformersCarousel />
+
                  <section className="py-16 px-4 bg-muted/30">
   <div className="container mx-auto">
     {/* Header */}

@@ -1,6 +1,6 @@
 "use client"
 const getSortValue = (player: Player, sortBy: SortKey) => {
-  if (sortBy === "overall") {
+  if (sortBy === "overall" || sortBy === "rating") {
     return calculatePlayerRating(player)
   }
 
@@ -33,6 +33,7 @@ type SortKey =
   | "apps"
   | "age"
   |"overall"
+  | "rating"
 
 const formatPlayerName = (name: string) => {
   return name
@@ -476,6 +477,7 @@ export default function PlayersPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="name">Name</SelectItem>
+                    <SelectItem value="rating">Rating</SelectItem>
                     <SelectItem value="goal">Goals</SelectItem>
                     <SelectItem value="assists">Assists</SelectItem>
                     <SelectItem value="gPlusA">G+A </SelectItem>
