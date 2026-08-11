@@ -1,10 +1,10 @@
 "use client"
-const getSortValue = (player: Player, sortBy: SortKey) => {
+const getSortValue = (player: OldPlayer, sortBy: SortKey) => {
   if (sortBy === "overall") {
     return calculatePlayerRating(player)
   }
 
-  return player[sortBy as keyof Player]
+  return getStatValue(player, sortBy)
 }
 import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
@@ -16,7 +16,29 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import { Search, Filter, SortAsc, SortDesc, Grid3X3, List, X, ChevronDown } from "lucide-react"
-import { usePlayers, type Player } from "@/lib/use-players"
+import { usePlayers, type Player as APIPlayer } from "@/lib/use-players"
+import { type Player as OldPlayer } from "@/lib/players-data"
+import { adminApi } from "@/lib/api"
+import { Trash2 } from "lucide-react"
+import { toast } from "sonner"
+
+// Transform API player data to match old Player structure for compatibility
+const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
+  id: apiPlayer.id,
+  name: apiPlayer.name,
+  team: apiPlayer.team,
+  position: apiPlayer.position,
+  age: apiPlayer.age,
+  cardType: apiPlayer.cardType,
+  apps: apiPlayer.stats.apps,
+  goal: apiPlayer.stats.goals,
+  assists: apiPlayer.stats.assists,
+  gPlusA: apiPlayer.stats.gPlusA,
+  gPm: apiPlayer.stats.gPm,
+  aPm: apiPlayer.stats.aPm,
+  gAPm: apiPlayer.stats.gAPm,
+  image: apiPlayer.image
+})
 import { assignDistinctArchetypes, getPlayerArchetype, PLAYER_ARCHETYPES, getGOATPlayer } from "@/lib/player-archetypes"
 import { calculatePlayerRating } from "@/lib/leaderboard-utils"
 import { buildLeaderboardBadges, selectBestBadge } from "@/lib/leaderboard-badges"
@@ -32,6 +54,18 @@ type SortKey =
   | "age"
   |"overall"
 
+// Helper to get stats from transformed Player (OldPlayer format)
+const getStatValue = (player: OldPlayer, key: string) => {
+  if (key === 'goal') return player.goal
+  if (key === 'assists') return player.assists
+  if (key === 'gPlusA') return player.gPlusA
+  if (key === 'gAPm') return player.gAPm
+  if (key === 'gPm') return player.gPm
+  if (key === 'aPm') return player.aPm
+  if (key === 'apps') return player.apps
+  return (player as any)[key]
+}
+
 const formatPlayerName = (name: string) => {
   return name
     .split(" ")
@@ -45,13 +79,16 @@ export default function PlayersPage() {
   const { players: playersData } = usePlayers()
   const [searchTerm, setSearchTerm] = useState("")
   
+  // Transform API data to old format for compatibility with existing functions
+  const transformedPlayers = useMemo(() => playersData.map(transformAPIPlayer), [playersData])
+  
   // Get team from URL parameter
   const initialTeam = searchParams?.get('team') || "all"
   const [selectedPosition, setSelectedPosition] = useState<string>("all")
   const [selectedCardType, setSelectedCardType] = useState<string>("all")
   const [selectedTeam, setSelectedTeam] = useState<string>(initialTeam)
   const [selectedArchetype, setSelectedArchetype] = useState<string>("all")
-  const [ageRange, setAgeRange] = useState([18, 40])
+  const [ageRange, setAgeRange] = useState([16, 50])
   const [goalsRange, setGoalsRange] = useState([0, 2000])
   const [assistsRange, setAssistsRange] = useState([0, 1000])
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
@@ -72,9 +109,9 @@ export default function PlayersPage() {
   const cardTypes = [...new Set(playersData.map((p) => p.cardType))].sort()
   const teams = [...new Set(playersData.map((p) => p.team).filter((team) => team !== "NAN"))].sort()
 
-  const goatPlayer = useMemo(() => getGOATPlayer(playersData), [playersData])
-  const leaderboardBadgesByPlayerId = useMemo(() => buildLeaderboardBadges(playersData, 10), [playersData])
-  const archetypeAssignments = useMemo(() => assignDistinctArchetypes(playersData), [playersData])
+  const goatPlayer = useMemo(() => getGOATPlayer(transformedPlayers), [transformedPlayers])
+  const leaderboardBadgesByPlayerId = useMemo(() => buildLeaderboardBadges(transformedPlayers, 10), [transformedPlayers])
+  const archetypeAssignments = useMemo(() => assignDistinctArchetypes(transformedPlayers), [transformedPlayers])
   const availableArchetypes = useMemo(() => {
     const uniqueByName = new Map<string, (typeof PLAYER_ARCHETYPES)[keyof typeof PLAYER_ARCHETYPES]>()
     archetypeAssignments.forEach((archetype) => {
@@ -86,7 +123,7 @@ export default function PlayersPage() {
   }, [archetypeAssignments])
 
   const filteredAndSortedPlayers = useMemo(() => {
-  const filtered = playersData.filter((player) => {
+  const filtered = transformedPlayers.filter((player) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
 
     const matchesSearch =
@@ -131,7 +168,7 @@ export default function PlayersPage() {
 })
 
 }, [
-  playersData,
+  transformedPlayers,
   searchTerm,
   selectedPosition,
   selectedCardType,
@@ -152,7 +189,7 @@ export default function PlayersPage() {
     setSelectedCardType("all")
     setSelectedTeam("all")
     setSelectedArchetype("all")
-    setAgeRange([18, 40])
+    setAgeRange([16, 50])
     setGoalsRange([0, 2000])
     setAssistsRange([0, 1000])
     setSortBy("name")
@@ -165,14 +202,29 @@ export default function PlayersPage() {
     selectedCardType !== "all",
     selectedTeam !== "all",
     selectedArchetype !== "all",
-    ageRange[0] !== 18 || ageRange[1] !== 40,
+    ageRange[0] !== 16 || ageRange[1] !== 50,
     goalsRange[0] !== 0 || goalsRange[1] !== 2000,
     assistsRange[0] !== 0 || assistsRange[1] !== 1000,
   ].filter(Boolean).length
 
-  const PlayerCard = ({ player }: { player: Player }) => {
+  const PlayerCard = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
+    const { deletePlayer } = usePlayers()
+
+    const handleDelete = async () => {
+      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+        try {
+          await adminApi.deletePlayer(player.id)
+          deletePlayer(player.id)
+          toast.success('Player deleted successfully')
+        } catch (error) {
+          console.error('Error deleting player:', error)
+          toast.error('Failed to delete player')
+        }
+      }
+    }
+
     return (
       <Card
         key={player.id}
@@ -183,7 +235,7 @@ export default function PlayersPage() {
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-4">
             <img
-              src={player.image || "/placeholder.svg?height=64&width=64&query=football player"}
+              src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=64&width=64&query=football player")}
               alt={player.name}
               className="w-24 h-34 rounded-none object-cover"
             />
@@ -262,16 +314,38 @@ export default function PlayersPage() {
           <Button className="flex-1" asChild>
              <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
           </Button>
+          <Button 
+            className="bg-red-500 hover:bg-red-600 text-white" 
+            size="icon"
+            onClick={handleDelete}
+            title="Delete Player"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
         </CardContent>
       </Card>
     )
   }
 
-  const PlayerListItem = ({ player }: { player: Player }) => {
+  const PlayerListItem = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
-    
+    const { deletePlayer } = usePlayers()
+
+    const handleDelete = async () => {
+      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+        try {
+          await adminApi.deletePlayer(player.id)
+          deletePlayer(player.id)
+          toast.success('Player deleted successfully')
+        } catch (error) {
+          console.error('Error deleting player:', error)
+          toast.error('Failed to delete player')
+        }
+      }
+    }
+
     return (
       <Card
         key={player.id}
@@ -285,7 +359,7 @@ export default function PlayersPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <img
-                  src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
+                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                   alt={player.name}
                   className="w-16 h-24 rounded-sm object-cover"
                 />
@@ -334,7 +408,7 @@ export default function PlayersPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img
-                  src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
+                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                   alt={player.name}
                   className="w-24 h-34 rounded-none object-cover"
                 />
@@ -392,6 +466,14 @@ export default function PlayersPage() {
                   </Button>
                   <Button size="sm" asChild>
                     <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                    onClick={handleDelete}
+                    title="Delete Player"
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -582,7 +664,7 @@ export default function PlayersPage() {
                   <label className="text-sm font-medium">
                     Age Range: {ageRange[0]} - {ageRange[1]} years
                   </label>
-                  <Slider value={ageRange} onValueChange={setAgeRange} min={18} max={40} step={1} className="w-full" />
+                  <Slider value={ageRange} onValueChange={setAgeRange} min={16} max={50} step={1} className="w-full" />
                 </div>
 
                 <div className="space-y-2">

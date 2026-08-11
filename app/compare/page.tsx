@@ -38,8 +38,26 @@ import {
   Cell,
 } from "recharts"
 import { Search, Plus, X, Users, Trophy, Target, Zap, BarChart3, Download, Sparkles, Filter, Lightbulb } from "lucide-react"
-import { usePlayers, type Player } from "@/lib/use-players"
-// import { playersData, type Player } from "@/lib/players-data"
+import { usePlayers, type Player as APIPlayer } from "@/lib/use-players"
+import { type Player as OldPlayer } from "@/lib/players-data"
+
+// Transform API player data to match old Player structure for compatibility
+const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
+  id: apiPlayer.id,
+  name: apiPlayer.name,
+  team: apiPlayer.team,
+  position: apiPlayer.position,
+  age: apiPlayer.age,
+  cardType: apiPlayer.cardType,
+  apps: apiPlayer.stats.apps,
+  goal: apiPlayer.stats.goals,
+  assists: apiPlayer.stats.assists,
+  gPlusA: apiPlayer.stats.gPlusA,
+  gPm: apiPlayer.stats.gPm,
+  aPm: apiPlayer.stats.aPm,
+  gAPm: apiPlayer.stats.gAPm,
+  image: apiPlayer.image
+})
 const PRESETS = [
   {
     id: 'messi-evolution',
@@ -152,7 +170,11 @@ const PRESETS = [
 export default function ComparePage() {
   const searchParams = useSearchParams()
   const { players: playersData } = usePlayers()
-  const [selectedPlayers, setSelectedPlayers] = useState<Player[]>([])
+  
+  // Transform API data to old format for compatibility
+  const transformedPlayers = playersData.map(transformAPIPlayer)
+  
+  const [selectedPlayers, setSelectedPlayers] = useState<OldPlayer[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [positionFilter, setPositionFilter] = useState<string>("")
@@ -163,15 +185,15 @@ export default function ComparePage() {
   // Add player from URL parameter if present
   useEffect(() => {
     const playerId = searchParams?.get('playerId')
-    if (playerId && playersData.length > 0 && !urlPlayerProcessed.current) {
-      const playerToAdd = playersData.find(p => p.id.toString() === playerId)
+    if (playerId && transformedPlayers.length > 0 && !urlPlayerProcessed.current) {
+      const playerToAdd = transformedPlayers.find(p => p.id.toString() === playerId)
       if (playerToAdd && !selectedPlayers.some(p => p.id === playerToAdd.id)) {
         console.log('Auto-adding player from URL:', playerToAdd.name)
         setSelectedPlayers(prev => [...prev, playerToAdd])
         urlPlayerProcessed.current = true
       }
     }
-  }, [searchParams, playersData, selectedPlayers])
+  }, [searchParams, transformedPlayers, selectedPlayers])
 
   // Function to load a preset
   type Preset = {
@@ -197,7 +219,7 @@ export default function ComparePage() {
     
     if (preset.team) {
       // Handle team-based presets - filter out already selected players by name
-      playersToAdd = playersData
+      playersToAdd = transformedPlayers
         .filter(p => 
           p.team.toLowerCase() === preset.team?.toLowerCase() &&
           !isPlayerSelected(p)
@@ -212,14 +234,14 @@ export default function ComparePage() {
     } 
     else if (preset.playerIds) {
       // Handle preset with specific player IDs - filter out already selected players by name
-      playersToAdd = playersData.filter(p => 
+      playersToAdd = transformedPlayers.filter(p => 
         preset.playerIds?.includes(p.id) &&
         !isPlayerSelected(p)
       );
     } 
     else if (preset.playerNames) {
       // Fallback to name matching - filter out already selected players by name
-      playersToAdd = playersData.filter(p => 
+      playersToAdd = transformedPlayers.filter(p => 
         preset.playerNames?.some(name => 
           p.name.toLowerCase().includes(name.toLowerCase())
         ) &&
@@ -240,7 +262,7 @@ export default function ComparePage() {
     setIsDialogOpen(false);
   };
 
-  const filteredPlayers = playersData.filter(
+  const filteredPlayers = transformedPlayers.filter(
     (player) =>
       (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -251,7 +273,7 @@ export default function ComparePage() {
   )
 
   const getTeamStats = (teamName: string) => {
-    const teamPlayers = playersData.filter((p) => p.team.toLowerCase() === teamName.toLowerCase())
+    const teamPlayers = transformedPlayers.filter((p) => p.team.toLowerCase() === teamName.toLowerCase())
     if (teamPlayers.length === 0) return null
 
     return {
@@ -266,7 +288,7 @@ export default function ComparePage() {
   }
   
   const getPositionStats = (position: string) => {
-    const posPlayers = playersData.filter((p) => p.position === position)
+    const posPlayers = transformedPlayers.filter((p) => p.position === position)
     if (posPlayers.length === 0) return null
 
     return {
@@ -339,7 +361,7 @@ export default function ComparePage() {
       return distance
     }
 
-    return playersData
+    return transformedPlayers
       .filter((p) => p.id !== player.id && !selectedPlayers.find((sp) => sp.id === p.id))
       .map((p) => ({ player: p, distance: calculateDistance(player, p) }))
       .sort((a, b) => a.distance - b.distance)
@@ -551,7 +573,7 @@ export default function ComparePage() {
     const positions = ["SS", "CF", "LWF", "AMF"]
     return positions.map((pos) => ({
       name: pos,
-      value: playersData.filter((p) => p.position === pos).length,
+      value: transformedPlayers.filter((p) => p.position === pos).length,
     }))
   }
 

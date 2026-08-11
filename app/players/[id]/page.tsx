@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,10 +9,31 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Share2, Heart, BarChart3, Trophy, Target, Users, Calendar, MapPin, ArrowRightLeft } from "lucide-react"
-import { usePlayers, type Player } from "@/lib/use-players"
+import { usePlayers, type Player as APIPlayer } from "@/lib/use-players"
+import { type Player as OldPlayer } from "@/lib/players-data"
 import { useRouter } from "next/navigation"
 import { buildLeaderboardBadges } from "@/lib/leaderboard-badges"
 import { isFavouritePlayer, toggleFavouritePlayer } from "@/lib/favourites"
+
+const NEXT_PUBLIC_IMAGE_URL = 'http://localhost:8000'
+
+// Transform API player data to match old Player structure for compatibility
+const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
+  id: apiPlayer.id,
+  name: apiPlayer.name,
+  team: apiPlayer.team,
+  position: apiPlayer.position,
+  age: apiPlayer.age,
+  cardType: apiPlayer.cardType,
+  apps: apiPlayer.stats.apps,
+  goal: apiPlayer.stats.goals,
+  assists: apiPlayer.stats.assists,
+  gPlusA: apiPlayer.stats.gPlusA,
+  gPm: apiPlayer.stats.gPm,
+  aPm: apiPlayer.stats.aPm,
+  gAPm: apiPlayer.stats.gAPm,
+  image: apiPlayer.image
+})
 
 export default function PlayerDetailPage() {
   const params = useParams()
@@ -20,7 +41,12 @@ export default function PlayerDetailPage() {
   const { players: playersData } = usePlayers()
   const player = playersData.find((p) => p.id === playerId)
   const [isFavorite, setIsFavorite] = useState(false)
-  const leaderboardBadgesByPlayerId = buildLeaderboardBadges(playersData, 10)
+  
+  // Transform API data to old format for compatibility with existing functions
+  const transformedPlayers = useMemo(() => playersData.map(transformAPIPlayer), [playersData])
+  const transformedPlayer = useMemo(() => player ? transformAPIPlayer(player) : null, [player])
+  
+  const leaderboardBadgesByPlayerId = buildLeaderboardBadges(transformedPlayers, 10)
   const playerBadges = leaderboardBadgesByPlayerId.get(playerId) ?? []
   const router = useRouter()
 
@@ -44,6 +70,9 @@ export default function PlayerDetailPage() {
     )
   }
 
+  // After this point, we know player exists, so transformedPlayer is not null
+  const playerData = transformedPlayer!
+
   const formatPlayerName = (name: string) => {
     return name
       .split(" ")
@@ -51,7 +80,7 @@ export default function PlayerDetailPage() {
       .join(" ")
   }
 
-  const   getPerformanceRating = (player: Player) => {
+  const   getPerformanceRating = (player: OldPlayer) => {
     const goalRating = Math.min(player.gPm * 100, 100)
     const assistRating = Math.min(player.aPm * 100, 100)
     const efficiencyRating = Math.min(player.gAPm * 100, 100)
@@ -66,21 +95,21 @@ export default function PlayerDetailPage() {
     }
   }
 //changed
-  const getPlayerRank = (stat: keyof Player) => {
-    const sortedPlayers = [...playersData].sort(
-  (a, b) => (b[stat] as number) - (a[stat] as number)
+  const getPlayerRank = (stat: keyof OldPlayer) => {
+    const sortedPlayers = [...transformedPlayers].sort(
+  (a: OldPlayer, b: OldPlayer) => (b[stat] as number) - (a[stat] as number)
 )
-    return sortedPlayers.findIndex((p) => p.id === player.id) + 1
+    return sortedPlayers.findIndex((p: OldPlayer) => p.id === playerData!.id) + 1
   }
 
   const getSimilarPlayers = () => {
-    return playersData
-      .filter((p) => p.id !== player.id && p.position === player.position)
-      .sort((a, b) => Math.abs(b.gAPm - player.gAPm) - Math.abs(a.gAPm - player.gAPm))
+    return transformedPlayers
+      .filter((p: OldPlayer) => p.id !== playerData!.id && p.position === playerData!.position)
+      .sort((a: OldPlayer, b: OldPlayer) => Math.abs(b.gAPm - playerData!.gAPm) - Math.abs(a.gAPm - playerData!.gAPm))
       .slice(0, 3)
   }
 
-  const ratings = getPerformanceRating(player)
+  const ratings = getPerformanceRating(playerData)
   const similarPlayers = getSimilarPlayers()
 
   return (
@@ -92,30 +121,30 @@ export default function PlayerDetailPage() {
             <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-8">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <img
-                  src={player.image || "/placeholder.svg?height=120&width=120&query=football player"}
-                  alt={player.name}
+                  src={playerData.image && !playerData.image.startsWith('/uploads/') ? playerData.image : (playerData.image ? `${NEXT_PUBLIC_IMAGE_URL}${playerData.image}` : "/placeholder.svg?height=120&width=120&query=football player")}
+                  alt={playerData.name}
                   className="w-20 h-28 sm:w-24 sm:h-34 rounded-none object-cover border-background shadow-md"
                 />
                 <div className="flex-1 w-full">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3 sm:mb-4">
                     <div className="w-full">
-                      <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-1 sm:mb-2">{formatPlayerName(player.name)}</h1>
+                      <h1 className="text-2xl sm:text-4xl font-bold text-foreground mb-1 sm:mb-2">{formatPlayerName(playerData.name)}</h1>
                       <div className="flex flex-wrap gap-2 sm:gap-4 text-sm sm:text-base text-muted-foreground mb-2 sm:mb-3">
                         <div className="flex items-center gap-1">
                           <MapPin className="w-4 h-4" />
-                          {player.team === "NAN" ? "Free Agent" : formatPlayerName(player.team)}
+                          {playerData.team === "NAN" ? "Free Agent" : formatPlayerName(playerData.team)}
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
-                          {player.position}
+                          {playerData.position}
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {player.age} years old
+                          {playerData.age} years old
                         </div>
                       </div>
                       <Badge variant="secondary" className="text-lg font-bold px-4 py-2">
-                        {player.cardType}
+                        {playerData.cardType}
                       </Badge>
                       {playerBadges.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -166,7 +195,7 @@ export default function PlayerDetailPage() {
                         className="h-9 sm:h-9 text-xs sm:text-sm col-span-2 sm:col-auto"
                         onClick={() =>
                           router.push(
-                            `/stats-update?playerId=${playerId}&playerName=${encodeURIComponent(player.name)}`
+                            `/stats-update?playerId=${playerId}&playerName=${encodeURIComponent(playerData.name)}`
                           )
                         }
                       >
@@ -181,19 +210,19 @@ export default function PlayerDetailPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-2 sm:gap-4">
                     <div className="text-center p-1 sm:p-0">
-                      <div className="text-xl sm:text-2xl font-bold text-primary">{player.apps}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{playerData.apps}</div>
                       <div className="text-xs sm:text-sm text-muted-foreground">Appearances</div>
                     </div>
                     <div className="text-center p-1 sm:p-0">
-                      <div className="text-xl sm:text-2xl font-bold text-primary">{player.goal}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{playerData.goal}</div>
                       <div className="text-xs sm:text-sm text-muted-foreground">Goals</div>
                     </div>
                     <div className="text-center p-1 sm:p-0">
-                      <div className="text-xl sm:text-2xl font-bold text-primary">{player.assists}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{playerData.assists}</div>
                       <div className="text-xs sm:text-sm text-muted-foreground">Assists</div>
                     </div>
                     <div className="text-center p-1 sm:p-0">
-                      <div className="text-xl sm:text-2xl font-bold text-primary">{player.gAPm.toFixed(3)}</div>
+                      <div className="text-xl sm:text-2xl font-bold text-primary">{playerData.gAPm.toFixed(3)}</div>
                       <div className="text-xs sm:text-sm text-muted-foreground">G+A/Match</div>
                     </div>
                   </div>
@@ -247,29 +276,29 @@ export default function PlayerDetailPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Total Goals</span>
-                        <span className="text-sm font-bold">{player.goal}</span>
+                        <span className="text-sm font-bold">{playerData.goal}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Total Assists</span>
-                        <span className="text-sm font-bold">{player.assists}</span>
+                        <span className="text-sm font-bold">{playerData.assists}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Goals + Assists</span>
-                        <span className="text-sm font-bold">{player.gPlusA}</span>
+                        <span className="text-sm font-bold">{playerData.gPlusA}</span>
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Goals/Match</span>
-                        <span className="text-sm font-bold">{player.gPm.toFixed(3)}</span>
+                        <span className="text-sm font-bold">{playerData.gPm.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">Assists/Match</span>
-                        <span className="text-sm font-bold">{player.aPm.toFixed(3)}</span>
+                        <span className="text-sm font-bold">{playerData.aPm.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm font-medium">G+A/Match</span>
-                        <span className="text-sm font-bold">{player.gAPm.toFixed(3)}</span>
+                        <span className="text-sm font-bold">{playerData.gAPm.toFixed(3)}</span>
                       </div>
                     </div>
                   </div>
@@ -335,16 +364,16 @@ export default function PlayerDetailPage() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 flex-1">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-primary mb-2">{player.goal}</div>
+                    <div className="text-4xl font-bold text-primary mb-2">{playerData.goal}</div>
                     <div className="text-sm text-muted-foreground mb-4">Total Goals</div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Goals per Match</span>
-                        <span className="font-bold">{player.gPm.toFixed(3)}</span>
+                        <span className="font-bold">{playerData.gPm.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Goal Contribution</span>
-                        <span className="font-bold">{((player.goal / player.gPlusA) * 100).toFixed(1)}%</span>
+                        <span className="font-bold">{((playerData.goal / playerData.gPlusA) * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                   </div>
@@ -357,16 +386,16 @@ export default function PlayerDetailPage() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 flex-1">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-primary mb-2">{player.assists}</div>
+                    <div className="text-4xl font-bold text-primary mb-2">{playerData.assists}</div>
                     <div className="text-sm text-muted-foreground mb-4">Total Assists</div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>Assists per Match</span>
-                        <span className="font-bold">{player.aPm.toFixed(3)}</span>
+                        <span className="font-bold">{playerData.aPm.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Assist Contribution</span>
-                        <span className="font-bold">{((player.assists / player.gPlusA) * 100).toFixed(1)}%</span>
+                        <span className="font-bold">{((playerData.assists / playerData.gPlusA) * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                   </div>
@@ -379,16 +408,16 @@ export default function PlayerDetailPage() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 flex-1">
                   <div className="text-center">
-                    <div className="text-4xl font-bold text-primary mb-2">{player.gPlusA}</div>
+                    <div className="text-4xl font-bold text-primary mb-2">{playerData.gPlusA}</div>
                     <div className="text-sm text-muted-foreground mb-4">Goals + Assists</div>
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span>G+A per Match</span>
-                        <span className="font-bold">{player.gAPm.toFixed(3)}</span>
+                        <span className="font-bold">{playerData.gAPm.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span>Impact Rate</span>
-                        <span className="font-bold">{((player.gPlusA / player.apps) * 100).toFixed(1)}%</span>
+                        <span className="font-bold">{((playerData.gPlusA / playerData.apps) * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                   </div>
@@ -462,11 +491,11 @@ export default function PlayerDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {similarPlayers.map((similarPlayer) => (
+                  {similarPlayers.map((similarPlayer: OldPlayer) => (
                     <Link key={similarPlayer.id} href={`/players/${similarPlayer.id}`}>
                       <div className="flex items-center gap-2 sm:gap-4 p-2 sm:p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
                         <img
-                          src={similarPlayer.image || "/placeholder.svg?height=48&width=48&query=football player"}
+                          src={similarPlayer.image && !similarPlayer.image.startsWith('/uploads/') ? similarPlayer.image : (similarPlayer.image ? `${NEXT_PUBLIC_IMAGE_URL}${similarPlayer.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                           alt={similarPlayer.name}
                           className="w-16 h-24 sm:w-24 sm:h-34 rounded-none object-cover flex-shrink-0"
                         />

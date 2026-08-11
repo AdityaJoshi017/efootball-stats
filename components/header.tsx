@@ -4,7 +4,12 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Moon, Sun, LogOut, User, Menu, X } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Moon, Sun, LogOut, User, Menu, X, Search } from "lucide-react"
+import { api } from "@/lib/api"
+import type { Player } from "@/lib/api"
+
+const NEXT_PUBLIC_IMAGE_URL = 'http://localhost:8000'
 
 export function Header() {
   const router = useRouter()
@@ -13,6 +18,10 @@ export function Header() {
   const [mounted, setMounted] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<Player[]>([])
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const [allPlayers, setAllPlayers] = useState<Player[]>([])
 
   useEffect(() => {
     setMounted(true)
@@ -35,6 +44,17 @@ export function Header() {
     }
 
     window.addEventListener("authChanged", handleAuthChanged as EventListener)
+
+    // Fetch all players for search
+    const fetchPlayers = async () => {
+      try {
+        const players = await api.getPlayers()
+        setAllPlayers(players)
+      } catch (error) {
+        console.error('Failed to fetch players:', error)
+      }
+    }
+    fetchPlayers()
 
     return () => {
       window.removeEventListener("authChanged", handleAuthChanged as EventListener)
@@ -63,6 +83,26 @@ export function Header() {
     setIsUserMenuOpen(false)
     router.push("/")
   }
+
+  // Handle search
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setSearchResults([])
+      setShowSearchDropdown(false)
+      return
+    }
+
+    const filtered = allPlayers
+      .filter(player => 
+        player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        player.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        player.position.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .slice(0, 5) // Max 5 results
+
+    setSearchResults(filtered)
+    setShowSearchDropdown(true)
+  }, [searchQuery, allPlayers])
 
   if (!mounted) return null
 
@@ -97,6 +137,63 @@ export function Header() {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Search Bar */}
+            <div className="relative hidden md:block">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search players..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-8 h-9 w-64 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('')
+                      setShowSearchDropdown(false)
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              
+              {/* Search Dropdown */}
+              {showSearchDropdown && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                  {searchResults.map((player) => (
+                    <Link
+                      key={player.id}
+                      href={`/players/${player.id}`}
+                      className="flex items-center gap-3 p-2 hover:bg-muted transition-colors border-b last:border-b-0"
+                      onClick={() => {
+                        setSearchQuery('')
+                        setShowSearchDropdown(false)
+                      }}
+                    >
+                      <img
+                        src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${NEXT_PUBLIC_IMAGE_URL}${player.image}` : "/placeholder.svg?height=48&width=32&query=football player")}
+                        alt={player.name}
+                        className="w-8 h-12 rounded object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg?height=48&width=32&query=football player"
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm">{player.displayName}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {player.position} • {player.team}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <Button
               variant="ghost"
               size="icon"
