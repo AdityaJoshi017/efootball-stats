@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { api } from "./api"
+import { playersData as defaultPlayers, type Player as OldPlayer } from "./players-data"
 
 export type Player = {
   id: number
@@ -27,6 +28,31 @@ export type Player = {
   }
 }
 
+// Transform hardcoded data to API format
+const transformOldPlayer = (oldPlayer: OldPlayer): Player => ({
+  id: oldPlayer.id,
+  name: oldPlayer.name,
+  team: oldPlayer.team,
+  position: oldPlayer.position,
+  age: oldPlayer.age,
+  cardType: oldPlayer.cardType,
+  cardSlug: `${oldPlayer.name.toLowerCase().replace(/\s+/g, '-')}-${oldPlayer.team.toLowerCase().replace(/\s+/g, '-')}-${oldPlayer.position}-${oldPlayer.age}-${oldPlayer.cardType}`,
+  displayName: `${oldPlayer.name} (${oldPlayer.team}, ${oldPlayer.position}, ${oldPlayer.cardType})`,
+  apps: oldPlayer.apps,
+  goal: oldPlayer.goal,
+  assists: oldPlayer.assists,
+  image: oldPlayer.image,
+  stats: {
+    apps: oldPlayer.apps,
+    goals: oldPlayer.goal,
+    assists: oldPlayer.assists,
+    gPlusA: oldPlayer.gPlusA,
+    gPm: oldPlayer.gPm,
+    aPm: oldPlayer.aPm,
+    gAPm: oldPlayer.gAPm,
+  }
+})
+
 export function usePlayers() {
   const [players, setPlayers] = useState<Player[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -42,7 +68,10 @@ export function usePlayers() {
         const data = await api.getPlayers()
         setPlayers(data)
       } catch (error) {
-        console.error("Failed to fetch players:", error)
+        console.error("Failed to fetch players from API, using fallback data:", error)
+        // Fallback to hardcoded data
+        const fallbackPlayers = defaultPlayers.map(transformOldPlayer)
+        setPlayers(fallbackPlayers)
       } finally {
         setIsLoading(false)
       }
