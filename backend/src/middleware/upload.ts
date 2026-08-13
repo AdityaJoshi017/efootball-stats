@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 
+// Use a directory that works with Render's disk mount
 const uploadDir = path.join(process.cwd(), 'uploads');
 
 // Ensure upload directory exists

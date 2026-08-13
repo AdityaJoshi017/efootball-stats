@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: efootball-stats-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: ADMIN_TOKEN
+        generateValue: true
+    disk:
+      name: data
+      mountPath: /backend
+      sizeGB: 1

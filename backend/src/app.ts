@@ -14,13 +14,10 @@ const PORT = process.env.PORT || 8000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'https://efootball-stats-six.vercel.app'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Serve uploaded files statically
-app.use('/uploads', express.static('uploads'));
 
 // Health check
 app.get('/health', (req, res) => {

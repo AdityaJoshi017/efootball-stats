@@ -1,6 +1,8 @@
 import { app } from './app';
 import { connectDB, sequelize } from './db';
 import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
 
 dotenv.config();
 
@@ -14,6 +16,9 @@ const startServer = async () => {
     // Sync database models (create tables if they don't exist)
     await sequelize.sync();
     console.log('Database synchronized successfully.');
+
+    // Serve static files from uploads directory
+    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
     // Start server
     app.listen(PORT, () => {
