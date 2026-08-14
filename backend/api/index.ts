@@ -3,6 +3,25 @@ import { connectDB, sequelize } from '../src/db';
 
 export default async (req: any, res: any) => {
   console.log('Function invoked:', req.method, req.url);
+  
+  // Simple test without database for debugging
+  if (req.url === '/test') {
+    return res.json({ 
+      message: 'Serverless function is working!',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  }
+
+  if (req.url === '/health') {
+    return res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      hasDatabase: !!process.env.DATABASE_URL || !!process.env.POSTGRES_URL
+    });
+  }
+
   console.log('Environment check:', {
     hasDatabaseUrl: !!process.env.DATABASE_URL,
     hasPostgresUrl: !!process.env.POSTGRES_URL,
