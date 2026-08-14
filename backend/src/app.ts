@@ -18,9 +18,25 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Health check (no database required)
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    hasDatabase: !!process.env.DATABASE_URL || !!process.env.POSTGRES_URL
+  });
+});
+
+// Simple test endpoint (no database required)
+app.get('/test', (req, res) => {
+  res.json({ message: 'Serverless function is working!' });
 });
 
 // Public routes
@@ -39,15 +55,16 @@ app.delete('/api/matches/:id', requireAdmin, matchController.deleteMatch);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
+  console.error('Express error:', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal server error',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route end found' });
+  res.status(404).json({ error: 'Route not found' });
 });
 
 export { app };
