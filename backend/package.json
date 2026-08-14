@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "vercel-build": "tsc",
     "seed": "ts-node scripts/seed.ts",
-    "import-players": "ts-node scripts/simple-import.ts"
+    "import-players": "ts-node scripts/simple-import.ts",
+    "import-neon": "DATABASE_URL=$DATABASE_URL ts-node scripts/simple-import.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",
