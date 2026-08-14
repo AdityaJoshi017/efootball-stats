@@ -237,7 +237,7 @@ export default function PlayersPage() {
             <img
               src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=64&width=64&query=football player")}
               alt={player.name}
-              className="w-24 h-34 rounded-none object-cover"
+              className="w-40 h-56 rounded-none object-cover"
             />
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -410,7 +410,7 @@ export default function PlayersPage() {
                 <img
                   src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                   alt={player.name}
-                  className="w-24 h-34 rounded-none object-cover"
+                  className="w-40 h-56 rounded-none object-cover"
                 />
                 <div>
                   <div className="flex items-center gap-2">

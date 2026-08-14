@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB, sequelize } from './db';
 import { requireAdmin } from './middleware/auth';
-import { upload } from './middleware/upload';
 import * as playerController from './controllers/playerController';
 import * as matchController from './controllers/matchController';
 
@@ -30,8 +29,8 @@ app.get('/api/players/:id', playerController.getPlayer);
 app.get('/api/players/:id/matches', matchController.getPlayerMatches);
 
 // Admin-protected routes
-app.post('/api/players', requireAdmin, upload.single('image'), playerController.createPlayer);
-app.put('/api/players/:id', requireAdmin, upload.single('image'), playerController.updatePlayer);
+app.post('/api/players', requireAdmin, playerController.createPlayer);
+app.put('/api/players/:id', requireAdmin, playerController.updatePlayer);
 app.delete('/api/players/:id', requireAdmin, playerController.deletePlayer);
 
 app.post('/api/players/:id/matches', requireAdmin, matchController.addMatch);
@@ -48,7 +47,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // 404 handler
 app.use((req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ error: 'Route end found' });
 });
 
 export { app };

@@ -58,8 +58,8 @@ export async function getPlayer(req: Request, res: Response) {
 // Create player (admin only)
 export async function createPlayer(req: Request, res: Response) {
   try {
-    const { name, team, position, age, cardType, apps, goal, assists } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
+    const image = imageUrl || undefined;
 
     // Generate unique identifiers
     const cardSlug = generateCardSlug(
@@ -110,8 +110,8 @@ export async function updatePlayer(req: Request, res: Response) {
       return res.status(404).json({ error: 'Player not found' });
     }
 
-    const { name, team, position, age, cardType, apps, goal, assists } = req.body;
-    const image = req.file ? `/uploads/${req.file.filename}` : player.image;
+    const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
+    const image = imageUrl !== undefined ? imageUrl : player.image;
 
     // Update identifiers if core fields changed
     const updatedName = name || player.name;

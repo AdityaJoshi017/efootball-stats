@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { adminApi } from '@/lib/api';
+import { uploadToImgur } from '@/lib/imgur';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,12 +20,13 @@ export default function AddPlayerPage() {
     apps: '',
     goal: '',
     assists: '',
+    imageUrl: '',
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [calculatedStats, setCalculatedStats] = useState<any>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [imageSource, setImageSource] = useState<'url' | 'upload'>('url');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -54,46 +56,28 @@ export default function AddPlayerPage() {
     }
   };
 
+  const handleImageUpload = async (file: File) => {
+    try {
+      setUploadingImage(true);
+      const imageUrl = await uploadToImgur(file);
+      setFormData(prev => ({ ...prev, imageUrl }));
+      toast.success('Image uploaded successfully to Imgur!');
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      toast.error('Failed to upload image. Please try again or use a URL.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      handleImageUpload(file);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-      // Create preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      toast.error('Please drop an image file (JPEG, PNG, WebP)');
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,9 +93,10 @@ export default function AddPlayerPage() {
         apps: parseInt(formData.apps) || 0,
         goal: parseInt(formData.goal) || 0,
         assists: parseInt(formData.assists) || 0,
+        imageUrl: formData.imageUrl || undefined,
       };
 
-      const result = await adminApi.createPlayer(playerData, imageFile || undefined);
+      const result = await adminApi.createPlayer(playerData);
       
       console.log('Player created:', result);
       toast.success('Player created successfully! Redirecting to players page...');
@@ -131,9 +116,8 @@ export default function AddPlayerPage() {
         apps: '',
         goal: '',
         assists: '',
+        imageUrl: '',
       });
-      setImageFile(null);
-      setImagePreview(null);
       setCalculatedStats(null);
     } catch (error: any) {
       console.error('Error:', error);
@@ -323,44 +307,73 @@ export default function AddPlayerPage() {
               )}
             </div>
 
-            {/* Image Upload */}
+            {/* Image URL/Upload */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Player Image</h3>
               
-              <div 
-                className={`space-y-2 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                  isDragging ? 'border-primary bg-primary/5' : 'border-muted-foreground/25'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
+              <div className="flex gap-2 mb-4">
+                <Button
+                  type="button"
+                  variant={imageSource === 'url' ? 'default' : 'outline'}
+                  onClick={() => setImageSource('url')}
+                  className="flex-1"
+                >
+                  Image URL
+                </Button>
+                <Button
+                  type="button"
+                  variant={imageSource === 'upload' ? 'default' : 'outline'}
+                  onClick={() => setImageSource('upload')}
+                  className="flex-1"
+                >
+                  Upload to Imgur
+                </Button>
+              </div>
+
+              {imageSource === 'url' ? (
                 <div className="space-y-2">
-                  <Label htmlFor="image" className="cursor-pointer">
-                    {isDragging ? 'Drop image here' : 'Upload Image'}
-                  </Label>
+                  <Label htmlFor="imageUrl">Image URL</Label>
                   <Input
-                    id="image"
+                    id="imageUrl"
+                    name="imageUrl"
+                    type="url"
+                    value={formData.imageUrl}
+                    onChange={handleChange}
+                    placeholder="https://example.com/player-image.jpg"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter the URL of the player's image from any image hosting service.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="imageFile">Upload Image</Label>
+                  <Input
+                    id="imageFile"
                     type="file"
                     accept="image/jpeg,image/jpg,image/png,image/webp"
                     onChange={handleImageChange}
-                    className="cursor-pointer"
+                    disabled={uploadingImage}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Accepted formats: JPEG, PNG, WebP (Max 5MB)<br />
-                    Or drag and drop an image here
+                    Upload image directly to Imgur (free). Accepted formats: JPEG, PNG, WebP (Max 10MB)
                   </p>
+                  {uploadingImage && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Uploading to Imgur...
+                    </p>
+                  )}
                 </div>
+              )}
 
-                {imagePreview && (
-                  <div className="mt-4">
-                    <Label>Image Preview</Label>
-                    <div className="mt-2 w-24 h-34 rounded-lg overflow-hidden border mx-auto">
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
+              {formData.imageUrl && (
+                <div className="mt-4">
+                  <Label>Image Preview</Label>
+                  <div className="mt-2 w-40 h-56 rounded-lg overflow-hidden border mx-auto">
+                    <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={() => setFormData(prev => ({ ...prev, imageUrl: '' }))} />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             <Button type="submit" disabled={loading} className="w-full">

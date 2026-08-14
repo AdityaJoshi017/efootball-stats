@@ -123,7 +123,7 @@ export default function PlayerDetailPage() {
                 <img
                   src={playerData.image && !playerData.image.startsWith('/uploads/') ? playerData.image : (playerData.image ? `${NEXT_PUBLIC_IMAGE_URL}${playerData.image}` : "/placeholder.svg?height=120&width=120&query=football player")}
                   alt={playerData.name}
-                  className="w-20 h-28 sm:w-24 sm:h-34 rounded-none object-cover border-background shadow-md"
+                  className="w-32 h-44 sm:w-40 sm:h-56 rounded-none object-cover border-background shadow-md"
                 />
                 <div className="flex-1 w-full">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-3 sm:mb-4">
@@ -497,7 +497,7 @@ export default function PlayerDetailPage() {
                         <img
                           src={similarPlayer.image && !similarPlayer.image.startsWith('/uploads/') ? similarPlayer.image : (similarPlayer.image ? `${NEXT_PUBLIC_IMAGE_URL}${similarPlayer.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                           alt={similarPlayer.name}
-                          className="w-16 h-24 sm:w-24 sm:h-34 rounded-none object-cover flex-shrink-0"
+                          className="w-24 h-32 sm:w-32 sm:h-44 rounded-none object-cover flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
                           <h3 className="text-sm sm:text-base font-semibold truncate">{formatPlayerName(similarPlayer.name)}</h3>

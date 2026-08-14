@@ -108,47 +108,24 @@ export const adminApi = {
     apps: number;
     goal: number;
     assists: number;
-  }, imageFile?: File) => {
-    if (imageFile) {
-      // Multipart form data for image upload
-      const formData = new FormData();
-      Object.keys(playerData).forEach(key => {
-        formData.append(key, String(playerData[key as keyof typeof playerData]));
-      });
-      formData.append('image', imageFile);
+    imageUrl?: string;
+  }) => {
+    // JSON request with imageUrl
+    const response = await fetch(`${API_BASE_URL}/api/players`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': ADMIN_TOKEN,
+      },
+      body: JSON.stringify(playerData),
+    });
 
-      const response = await fetch(`${API_BASE_URL}/api/players`, {
-        method: 'POST',
-        headers: {
-          'x-admin-token': ADMIN_TOKEN,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to create player: ${response.statusText}`);
-      }
-
-      return response.json();
-    } else {
-      // JSON request without image
-      const response = await fetch(`${API_BASE_URL}/api/players`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-token': ADMIN_TOKEN,
-        },
-        body: JSON.stringify(playerData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Failed to create player: ${response.statusText}`);
-      }
-
-      return response.json();
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Failed to create player: ${response.statusText}`);
     }
+
+    return response.json();
   },
   
   // Update player
@@ -161,35 +138,12 @@ export const adminApi = {
     apps?: number;
     goal?: number;
     assists?: number;
-  }, imageFile?: File) => {
-    if (imageFile) {
-      const formData = new FormData();
-      Object.keys(playerData).forEach(key => {
-        if (playerData[key as keyof typeof playerData] !== undefined) {
-          formData.append(key, String(playerData[key as keyof typeof playerData]));
-        }
-      });
-      formData.append('image', imageFile);
-
-      const response = await fetch(`${API_BASE_URL}/api/players/${id}`, {
-        method: 'PUT',
-        headers: {
-          'x-admin-token': ADMIN_TOKEN,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update player: ${response.statusText}`);
-      }
-
-      return response.json();
-    } else {
-      return adminApiCall(`/api/players/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(playerData),
-      });
-    }
+    imageUrl?: string;
+  }) => {
+    return adminApiCall(`/api/players/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(playerData),
+    });
   },
   
   // Delete player
