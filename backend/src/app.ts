@@ -44,7 +44,7 @@ app.get('/api/players', playerController.listPlayers);
 app.get('/api/players/:id', playerController.getPlayer);
 app.get('/api/players/:id/matches', matchController.getPlayerMatches);
 
-// Admin-protected routes
+// Admin-protected routes (no file upload middleware - using image URLs instead)
 app.post('/api/players', requireAdmin, playerController.createPlayer);
 app.put('/api/players/:id', requireAdmin, playerController.updatePlayer);
 app.delete('/api/players/:id', requireAdmin, playerController.deletePlayer);
