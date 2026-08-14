@@ -9,12 +9,11 @@ const sequelize = databaseUrl
   ? new Sequelize(databaseUrl, {
       dialect: 'postgres',
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
       dialectOptions: {
         ssl: process.env.NODE_ENV === 'production' ? { 
           require: true,
           rejectUnauthorized: false 
-        } : false,
+        } : undefined,
       },
     })
   : new Sequelize({
@@ -23,6 +22,7 @@ const sequelize = databaseUrl
       logging: process.env.NODE_ENV === 'development' ? console.log : false,
     });
 
+export { sequelize };
 export const connectDB = async () => {
   try {
     await sequelize.authenticate();
