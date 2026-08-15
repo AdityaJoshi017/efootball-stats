@@ -24,7 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check (no database required)
+// Health check
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -34,9 +34,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Simple test endpoint (no database required)
+// Simple test endpoint
 app.get('/test', (req, res) => {
-  res.json({ message: 'Serverless function is working!' });
+  res.json({ message: 'Backend is working!' });
 });
 
 // Public routes
@@ -44,7 +44,7 @@ app.get('/api/players', playerController.listPlayers);
 app.get('/api/players/:id', playerController.getPlayer);
 app.get('/api/players/:id/matches', matchController.getPlayerMatches);
 
-// Admin-protected routes (no file upload middleware - using image URLs instead)
+// Admin-protected routes (using image URLs instead of file uploads)
 app.post('/api/players', requireAdmin, playerController.createPlayer);
 app.put('/api/players/:id', requireAdmin, playerController.updatePlayer);
 app.delete('/api/players/:id', requireAdmin, playerController.deletePlayer);
