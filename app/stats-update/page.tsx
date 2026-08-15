@@ -160,10 +160,17 @@ export default function StatsUpdatePage() {
             </Select>
 
             {selectedPlayer && (
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{selectedPlayer.cardType}</Badge>
-                <Badge variant="outline">{selectedPlayer.position}</Badge>
-                <Badge variant="outline">{selectedPlayer.team === "NAN" ? "Free Agent" : selectedPlayer.team}</Badge>
+              <div className="flex items-center gap-4 flex-wrap">
+                <img 
+                  src={selectedPlayer.image || "/placeholder.svg?height=80&width=60&query=football player"} 
+                  alt={selectedPlayer.name}
+                  className="w-16 h-24 object-cover rounded-md border"
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="secondary">{selectedPlayer.cardType}</Badge>
+                  <Badge variant="outline">{selectedPlayer.position}</Badge>
+                  <Badge variant="outline">{selectedPlayer.team === "NAN" ? "Free Agent" : selectedPlayer.team}</Badge>
+                </div>
               </div>
             )}
           </CardContent>

@@ -81,7 +81,9 @@ export async function getPlayer(req: Request, res: Response) {
 export async function createPlayer(req: Request, res: Response) {
   try {
     const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-    const image = imageUrl || undefined;
+    
+    // If no image URL provided, use default ID-based path (will be set after creation)
+    let image = imageUrl || undefined;
 
     // Generate unique identifiers
     const cardSlug = generateCardSlug(
@@ -111,6 +113,11 @@ export async function createPlayer(req: Request, res: Response) {
       assists: parseInt(assists) || 0,
       image,
     });
+
+    // If no image was provided, set default ID-based path
+    if (!image) {
+      await player.update({ image: `/${player.id}.jpg` });
+    }
 
     const stats = computeStatsFromAggregates(player);
     const playerData = player.toJSON();
@@ -144,7 +151,16 @@ export async function updatePlayer(req: Request, res: Response) {
     }
 
     const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-    const image = imageUrl !== undefined ? imageUrl : player.image;
+    
+    // Handle image: use provided URL, existing image, or ID-based path
+    let image;
+    if (imageUrl !== undefined) {
+      image = imageUrl;
+    } else if (player.image) {
+      image = player.image;
+    } else {
+      image = `/${player.id}.jpg`;
+    }
 
     // Update identifiers if core fields changed
     const updatedName = name || player.name;

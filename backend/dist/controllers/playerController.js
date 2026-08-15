@@ -76,7 +76,8 @@ async function getPlayer(req, res) {
 async function createPlayer(req, res) {
     try {
         const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-        const image = imageUrl || undefined;
+        // If no image URL provided, use default ID-based path (will be set after creation)
+        let image = imageUrl || undefined;
         // Generate unique identifiers
         const cardSlug = (0, models_1.generateCardSlug)(name, team || 'N/A', position || 'Unknown', parseInt(age), cardType);
         const displayName = (0, models_1.generateDisplayName)(name, team || 'N/A', position || 'Unknown', cardType);
@@ -93,6 +94,10 @@ async function createPlayer(req, res) {
             assists: parseInt(assists) || 0,
             image,
         });
+        // If no image was provided, set default ID-based path
+        if (!image) {
+            await player.update({ image: `/${player.id}.jpg` });
+        }
         const stats = (0, stats_1.computeStatsFromAggregates)(player);
         const playerData = player.toJSON();
         // If image is a relative path, convert to full URL using frontend URL
@@ -122,7 +127,17 @@ async function updatePlayer(req, res) {
             return res.status(404).json({ error: 'Player not found' });
         }
         const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-        const image = imageUrl !== undefined ? imageUrl : player.image;
+        // Handle image: use provided URL, existing image, or ID-based path
+        let image;
+        if (imageUrl !== undefined) {
+            image = imageUrl;
+        }
+        else if (player.image) {
+            image = player.image;
+        }
+        else {
+            image = `/${player.id}.jpg`;
+        }
         // Update identifiers if core fields changed
         const updatedName = name || player.name;
         const updatedTeam = team !== undefined ? team : player.team;
