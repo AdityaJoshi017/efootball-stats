@@ -5,11 +5,9 @@ import { usePlayers, type Player } from "@/lib/use-players"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ArrowLeft, ArrowUp, ArrowDown, Minus, Check, Loader2, Plus, X, Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ArrowLeft, ArrowUp, ArrowDown, Minus, Check, Loader2, Plus, X } from "lucide-react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 
@@ -82,7 +80,6 @@ export default function StatsUpdatePage() {
   const [saved, setSaved] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     if (!selectedPlayer) {
@@ -141,69 +138,45 @@ export default function StatsUpdatePage() {
             <CardDescription >Choose a player to update their totals.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-full justify-between"
-                >
-                  {selectedPlayer 
-                    ? `${selectedPlayer.name} (${selectedPlayer.team})`
-                    : (isLoading ? "Loading players..." : "Select a player")
-                  }
-                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput 
-                    placeholder="Search players..." 
-                    value={searchQuery}
-                    onValueChange={setSearchQuery}
-                  />
-                  <CommandList>
-                    <CommandEmpty>No players found.</CommandEmpty>
-                    <CommandGroup>
-                      {players
-                        .filter((p) => 
-                          p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.team?.toLowerCase().includes(searchQuery.toLowerCase())
-                        )
-                        .filter((player, index, self) => 
-                          index === self.findIndex((p) => p.id === player.id)
-                        )
-                        .slice()
-                        .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-                        .map((p) => (
-                          <CommandItem
-                            key={p.id}
-                            value={String(p.id)}
-                            onSelect={() => {
-                              setSelectedId(String(p.id))
-                              setOpen(false)
-                            }}
-                          >
-                            <div className="flex items-center gap-2 flex-1">
-                              <img 
-                                src={p.image || "/placeholder.svg?height=32&width=24&query=football player"} 
-                                alt={p.name}
-                                className="w-8 h-12 object-cover rounded"
-                              />
-                              <div className="flex flex-col">
-                                <span className="font-medium">{p.name || 'Unknown Player'}</span>
-                                <span className="text-xs text-muted-foreground">{p.team} • {p.position}</span>
-                              </div>
-                            </div>
-                            {selectedId === String(p.id) && <Check className="ml-auto h-4 w-4" />}
-                          </CommandItem>
-                        ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <div className="space-y-2">
+              <Label>Search Player</Label>
+              <Input
+                placeholder="Search by name or team..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            
+            <Select value={selectedId} onValueChange={(v) => setSelectedId(v)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={isLoading ? "Loading players..." : "Select a player"} />
+              </SelectTrigger>
+              <SelectContent>
+                {players
+                  .filter((p) => 
+                    p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    p.team?.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .slice()
+                  .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                  .map((p) => (
+                    <SelectItem key={p.id} value={String(p.id)}>
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={p.image || "/placeholder.svg?height=32&width=24&query=football player"} 
+                          alt={p.name}
+                          className="w-8 h-12 object-cover rounded"
+                        />
+                        <div className="flex flex-col">
+                          <span className="font-medium">{p.name || 'Unknown Player'}</span>
+                          <span className="text-xs text-muted-foreground">{p.team} • {p.position}</span>
+                        </div>
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
 
             {selectedPlayer && (
               <div className="flex items-center gap-4 flex-wrap">
