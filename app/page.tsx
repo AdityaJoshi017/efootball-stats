@@ -186,7 +186,7 @@ const leaders = [
                     }}
                   >
                     <img
-                      src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${player.image}` : "/placeholder.svg?height=64&width=48&query=football player")}
+                      src={player.image || "/placeholder.svg?height=64&width=48&query=football player"}
                       alt={player.name}
                       className="w-12 h-16 rounded object-cover"
                       onError={(e) => {
