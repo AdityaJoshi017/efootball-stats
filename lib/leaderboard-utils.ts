@@ -3,11 +3,13 @@ import type { Player } from "./use-players"
 // Calculate consistency rating (0-100) based on how consistent a player's performance is
 export const calculateConsistencyRating = (player: Player): number => {
   // Consistency is based on how close their per-match stats are to their overall average
-  const avgGoalsPerMatch = player.gPm
-  const avgAssistsPerMatch = player.aPm
+  const avgGoalsPerMatch = player.stats?.gPm || 0
+  const avgAssistsPerMatch = player.stats?.aPm || 0
 
   // Higher consistency if both stats are balanced and high
-  const balance = Math.min(avgGoalsPerMatch, avgAssistsPerMatch) / Math.max(avgGoalsPerMatch, avgAssistsPerMatch)
+  const balance = avgGoalsPerMatch > 0 || avgAssistsPerMatch > 0 
+    ? Math.min(avgGoalsPerMatch, avgAssistsPerMatch) / Math.max(avgGoalsPerMatch, avgAssistsPerMatch)
+    : 0
   const efficiency = (avgGoalsPerMatch + avgAssistsPerMatch) / 2
 
   return Math.round((balance * 50 + efficiency * 50) * 100)
@@ -15,17 +17,17 @@ export const calculateConsistencyRating = (player: Player): number => {
 
 // Calculate overall player rating (0-100)
 export const calculatePlayerRating = (player: Player): number => {
-  const goalScore = Math.min(player.gPm * 100, 100)
-  const assistScore = Math.min(player.aPm * 100, 100)
+  const goalScore = Math.min((player.stats?.gPm || 0) * 100, 100)
+  const assistScore = Math.min((player.stats?.aPm || 0) * 100, 100)
   const experienceScore = Math.min((player.apps / 1500) * 100, 100)
-  const efficiencyScore = Math.min(player.gAPm * 50, 100)
+  const efficiencyScore = Math.min((player.stats?.gAPm || 0) * 50, 100)
 
   return Math.round((goalScore + assistScore + experienceScore + efficiencyScore) / 4)
 }
 
 // Get stat trend (up, down, stable)
 export const getStatTrend = (player: Player): "up" | "down" | "stable" => {
-  const efficiency = player.gAPm
+  const efficiency = player.stats?.gAPm || 0
   if (efficiency > 0.8) return "up"
   if (efficiency < 0.3) return "down"
   return "stable"
@@ -54,13 +56,17 @@ export const findBestCombinations = (players: Player[], teamSize = 2): Player[][
 }
 
 // Get head-to-head comparison between top 2 players in a category
-export const getHeadToHead = (players: Player[], statKey: keyof Player) => {
-  const sorted = [...players].sort((a, b) => (b[statKey] as number) - (a[statKey] as number))
+export const getHeadToHead = (players: Player[], statKey: keyof Player | keyof Player['stats'], useStats = false) => {
+  const sorted = [...players].sort((a, b) => {
+    const valueA = useStats ? (a.stats[statKey as keyof Player['stats']] || 0) : (a[statKey as keyof Player] || 0)
+    const valueB = useStats ? (b.stats[statKey as keyof Player['stats']] || 0) : (b[statKey as keyof Player] || 0)
+    return valueB - valueA
+  })
   return [sorted[0], sorted[1]].filter(Boolean)
 }
 
 // Export rankings as CSV
-export const exportRankingsAsCSV = (players: Player[], category: string): string => {
+export const exportRankingsAsCSV = (players: Player[], category: string, useStats = false): string => {
   const headers = ["Rank", "Name", "Team", "Position", "Age", "Card Type", "Value"]
   const rows = players.map((player, index) => [
     index + 1,
@@ -69,7 +75,7 @@ export const exportRankingsAsCSV = (players: Player[], category: string): string
     player.position,
     player.age,
     player.cardType,
-    player[category as keyof Player],
+    useStats ? player.stats[category as keyof Player['stats']] : player[category as keyof Player],
   ])
 
   const csv = [headers, ...rows].map((row) => row.join(",")).join("\n")

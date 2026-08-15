@@ -101,9 +101,13 @@ export default function LeaderboardsPage() {
     }))
   }
 
-  const getTopPlayers = (category: keyof Player, limit = 10) => {
+  const getTopPlayers = (category: keyof Player | keyof Player['stats'], limit = 10, useStats = false) => {
     const filtered = filterPlayers(playersData)
-    return filtered.sort((a, b) => ((b[category] as number) || 0) - ((a[category] as number) || 0)).slice(0, limit)
+    return filtered.sort((a, b) => {
+      const valueA = useStats ? (a.stats[category as keyof Player['stats']] || 0) : (a[category as keyof Player] || 0)
+      const valueB = useStats ? (b.stats[category as keyof Player['stats']] || 0) : (b[category as keyof Player] || 0)
+      return valueB - valueA
+    }).slice(0, limit)
   }
 
   const getPositionIcon = (rank: number) => {
@@ -137,13 +141,15 @@ export default function LeaderboardsPage() {
     formatValue,
     showTrend = false,
     showConsistency = false,
+    useStats = false,
   }: {
     players: Player[]
-    statKey: keyof Player
+    statKey: keyof Player | keyof Player['stats']
     statLabel: string
     formatValue?: (value: number) => string
     showTrend?: boolean
     showConsistency?: boolean
+    useStats?: boolean
   }) => (
     <div className="space-y-3">
       {players.map((player, index) => {
@@ -194,7 +200,10 @@ export default function LeaderboardsPage() {
                   )}
                   <div>
                     <div className="text-2xl font-bold text-primary">
-                      {formatValue ? formatValue((player[statKey] as number) || 0) : (player[statKey] || 0)}
+                      {formatValue 
+                        ? formatValue(((useStats ? player.stats[statKey as keyof Player['stats']] : player[statKey as keyof Player]) as number) || 0)
+                        : (useStats ? player.stats[statKey as keyof Player['stats']] : player[statKey as keyof Player] || 0)
+                      }
                     </div>
                     <div className="text-sm text-muted-foreground">{statLabel}</div>
                   </div>
@@ -328,7 +337,7 @@ export default function LeaderboardsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const csv = exportRankingsAsCSV(getTopPlayers("goal"), "goal")
+                    const csv = exportRankingsAsCSV(getTopPlayers("goal"), "goal", false)
                     downloadCSV(csv, "top-goal-scorers.csv")
                   }}
                 >
@@ -337,7 +346,7 @@ export default function LeaderboardsPage() {
                 </Button>
               </CardHeader>
               <CardContent>
-                <LeaderboardTable players={getTopPlayers("goal")} statKey="goal" statLabel="Goals" showTrend={true} />
+                <LeaderboardTable players={getTopPlayers("goal", 10, false)} statKey="goal" statLabel="Goals" showTrend={true} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -357,7 +366,7 @@ export default function LeaderboardsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const csv = exportRankingsAsCSV(getTopPlayers("assists"), "assists")
+                    const csv = exportRankingsAsCSV(getTopPlayers("assists"), "assists", false)
                     downloadCSV(csv, "top-assist-providers.csv")
                   }}
                 >
@@ -367,7 +376,7 @@ export default function LeaderboardsPage() {
               </CardHeader>
               <CardContent>
                 <LeaderboardTable
-                  players={getTopPlayers("assists")}
+                  players={getTopPlayers("assists", 10, false)}
                   statKey="assists"
                   statLabel="Assists"
                   showTrend={true}
@@ -388,11 +397,12 @@ export default function LeaderboardsPage() {
               </CardHeader>
               <CardContent>
                 <LeaderboardTable
-                  players={getTopPlayers("gAPm")}
+                  players={getTopPlayers("gAPm", 10, true)}
                   statKey="gAPm"
                   statLabel="G+A per Match"
                   formatValue={(value) => (value || 0).toFixed(3)}
                   showTrend={true}
+                  useStats={true}
                 />
               </CardContent>
             </Card>
@@ -403,7 +413,7 @@ export default function LeaderboardsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {getHeadToHead(getTopPlayers("gAPm"), "gAPm").map((player, idx) => (
+                  {getHeadToHead(getTopPlayers("gAPm", 2, true), "gAPm", true).map((player, idx) => (
                     <div key={player.id} className="p-4 border rounded-lg">
                       <div className="flex items-center gap-3 mb-3">
                         <img
@@ -428,7 +438,7 @@ export default function LeaderboardsPage() {
                         </div>
                         <div className="flex justify-between">
                           <span>G+A/Match:</span>
-                          <span className="font-semibold">{(player.gAPm || 0).toFixed(3)}</span>
+                          <span className="font-semibold">{(player.stats?.gAPm || 0).toFixed(3)}</span>
                         </div>
                       </div>
                     </div>
@@ -450,8 +460,7 @@ export default function LeaderboardsPage() {
               </CardHeader>
               <CardContent>
                 <LeaderboardTable
-                  players={getTopPlayers("goal")
-                    .slice(0, 20)
+                  players={getTopPlayers("goal", 20, false)
                     .sort((a, b) => calculateConsistencyRating(b) - calculateConsistencyRating(a))}
                   statKey="goal"
                   statLabel="Goals"
@@ -519,7 +528,7 @@ export default function LeaderboardsPage() {
               </CardHeader>
               <CardContent>
                 <LeaderboardTable
-                  players={getTopPlayers("apps")}
+                  players={getTopPlayers("apps", 10, false)}
                   statKey="apps"
                   statLabel="Appearances"
                   showTrend={true}
