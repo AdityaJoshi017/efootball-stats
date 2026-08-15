@@ -76,7 +76,7 @@ async function getPlayer(req, res) {
 async function createPlayer(req, res) {
     try {
         const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-        // If no image URL provided, use default ID-based path (will be set after creation)
+        // If no image URL provided, use placeholder or Cloudinary
         let image = imageUrl || undefined;
         // Generate unique identifiers
         const cardSlug = (0, models_1.generateCardSlug)(name, team || 'N/A', position || 'Unknown', parseInt(age), cardType);
@@ -94,9 +94,10 @@ async function createPlayer(req, res) {
             assists: parseInt(assists) || 0,
             image,
         });
-        // If no image was provided, set default ID-based path
+        // If no image was provided, set placeholder that suggests ID-based naming
         if (!image) {
-            await player.update({ image: `/${player.id}.jpg` });
+            const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=200&bold=true`;
+            await player.update({ image: placeholderUrl });
         }
         const stats = (0, stats_1.computeStatsFromAggregates)(player);
         const playerData = player.toJSON();
@@ -127,7 +128,7 @@ async function updatePlayer(req, res) {
             return res.status(404).json({ error: 'Player not found' });
         }
         const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-        // Handle image: use provided URL, existing image, or ID-based path
+        // Handle image: use provided URL, existing image, or placeholder
         let image;
         if (imageUrl !== undefined) {
             image = imageUrl;
@@ -136,7 +137,9 @@ async function updatePlayer(req, res) {
             image = player.image;
         }
         else {
-            image = `/${player.id}.jpg`;
+            // Generate placeholder with player name if no image exists
+            const playerName = name || player.name;
+            image = `https://ui-avatars.com/api/?name=${encodeURIComponent(playerName)}&background=random&size=200&bold=true`;
         }
         // Update identifiers if core fields changed
         const updatedName = name || player.name;

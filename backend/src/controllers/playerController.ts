@@ -82,7 +82,7 @@ export async function createPlayer(req: Request, res: Response) {
   try {
     const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
     
-    // If no image URL provided, use default ID-based path (will be set after creation)
+    // If no image URL provided, use placeholder or Cloudinary
     let image = imageUrl || undefined;
 
     // Generate unique identifiers
@@ -114,9 +114,10 @@ export async function createPlayer(req: Request, res: Response) {
       image,
     });
 
-    // If no image was provided, set default ID-based path
+    // If no image was provided, set placeholder that suggests ID-based naming
     if (!image) {
-      await player.update({ image: `/${player.id}.jpg` });
+      const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&size=200&bold=true`;
+      await player.update({ image: placeholderUrl });
     }
 
     const stats = computeStatsFromAggregates(player);
@@ -152,14 +153,16 @@ export async function updatePlayer(req: Request, res: Response) {
 
     const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
     
-    // Handle image: use provided URL, existing image, or ID-based path
+    // Handle image: use provided URL, existing image, or placeholder
     let image;
     if (imageUrl !== undefined) {
       image = imageUrl;
     } else if (player.image) {
       image = player.image;
     } else {
-      image = `/${player.id}.jpg`;
+      // Generate placeholder with player name if no image exists
+      const playerName = name || player.name;
+      image = `https://ui-avatars.com/api/?name=${encodeURIComponent(playerName)}&background=random&size=200&bold=true`;
     }
 
     // Update identifiers if core fields changed
