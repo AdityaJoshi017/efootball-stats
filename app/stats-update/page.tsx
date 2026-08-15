@@ -150,10 +150,10 @@ export default function StatsUpdatePage() {
               <SelectContent>
                 {players
                   .slice()
-                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                   .map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name}
+                      {p.name || 'Unknown Player'}
                     </SelectItem>
                   ))}
               </SelectContent>

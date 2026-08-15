@@ -66,7 +66,31 @@ export function usePlayers() {
     const fetchPlayers = async () => {
       try {
         const data = await api.getPlayers()
-        setPlayers(data)
+        // Ensure all players have required fields and proper structure
+        const safePlayers = data.map((p: any) => ({
+          id: p.id,
+          name: p.name || 'Unknown Player',
+          team: p.team || 'N/A',
+          position: p.position || 'Unknown',
+          age: p.age || 0,
+          cardType: p.cardType || 'Standard',
+          cardSlug: p.cardSlug || `${p.name || 'unknown'}-${p.team || 'na'}`,
+          displayName: p.displayName || `${p.name || 'Unknown'} (${p.team || 'N/A'})`,
+          apps: p.apps || 0,
+          goal: p.goal || 0,
+          assists: p.assists || 0,
+          image: p.image,
+          stats: p.stats || {
+            apps: p.apps || 0,
+            goals: p.goal || 0,
+            assists: p.assists || 0,
+            gPlusA: (p.goal || 0) + (p.assists || 0),
+            gPm: p.apps > 0 ? (p.goal || 0) / p.apps : 0,
+            aPm: p.apps > 0 ? (p.assists || 0) / p.apps : 0,
+            gAPm: p.apps > 0 ? ((p.goal || 0) + (p.assists || 0)) / p.apps : 0,
+          }
+        }))
+        setPlayers(safePlayers)
       } catch (error) {
         console.error("Failed to fetch players from API, using fallback data:", error)
         // Fallback to hardcoded data
@@ -86,7 +110,7 @@ export function usePlayers() {
 
   const updatePlayer = (playerId: number, updatedPlayer: Player) => {
     setPlayers((prev) => 
-      prev.map((p) => p.id === playerId ? updatedPlayer : p)
+      prev.map((p) => p.id === playerId ? { ...updatedPlayer, name: updatedPlayer.name || 'Unknown Player' } : p)
     )
   }
 
