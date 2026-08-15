@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { Share2, Heart, BarChart3, Trophy, Target, Users, Calendar, MapPin, ArrowRightLeft } from "lucide-react"
-import { usePlayers, type Player as APIPlayer } from "@/lib/use-players"
+import { usePlayer } from "@/lib/use-player"
+import { usePlayers } from "@/lib/use-players"
 import { type Player as OldPlayer } from "@/lib/players-data"
 import { useRouter } from "next/navigation"
 import { buildLeaderboardBadges } from "@/lib/leaderboard-badges"
@@ -18,35 +19,38 @@ import { isFavouritePlayer, toggleFavouritePlayer } from "@/lib/favourites"
 const NEXT_PUBLIC_IMAGE_URL = 'http://localhost:8000'
 
 // Transform API player data to match old Player structure for compatibility
-const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
+const transformAPIPlayer = (apiPlayer: any): OldPlayer => ({
   id: apiPlayer.id,
   name: apiPlayer.name,
   team: apiPlayer.team,
   position: apiPlayer.position,
   age: apiPlayer.age,
   cardType: apiPlayer.cardType,
-  apps: apiPlayer.stats.apps,
-  goal: apiPlayer.stats.goals,
-  assists: apiPlayer.stats.assists,
-  gPlusA: apiPlayer.stats.gPlusA,
-  gPm: apiPlayer.stats.gPm,
-  aPm: apiPlayer.stats.aPm,
-  gAPm: apiPlayer.stats.gAPm,
+  apps: apiPlayer.stats?.apps || apiPlayer.apps,
+  goal: apiPlayer.stats?.goals || apiPlayer.goal,
+  assists: apiPlayer.stats?.assists || apiPlayer.assists,
+  gPlusA: (apiPlayer.stats?.goals || apiPlayer.goal) + (apiPlayer.stats?.assists || apiPlayer.assists),
+  gPm: apiPlayer.stats?.gPm || (apiPlayer.apps > 0 ? apiPlayer.goal / apiPlayer.apps : 0),
+  aPm: apiPlayer.stats?.aPm || (apiPlayer.apps > 0 ? apiPlayer.assists / apiPlayer.apps : 0),
+  gAPm: apiPlayer.stats?.gAPm || (apiPlayer.apps > 0 ? (apiPlayer.goal + apiPlayer.assists) / apiPlayer.apps : 0),
   image: apiPlayer.image
 })
 
 export default function PlayerDetailPage() {
   const params = useParams()
   const playerId = Number.parseInt(params.id as string)
-  const { players: playersData } = usePlayers()
-  const player = playersData.find((p) => p.id === playerId)
+  const { player: playerData, isLoading } = usePlayer(playerId)
+  const { players: allPlayers } = usePlayers() // Only needed for similar players/leaderboard
   const [isFavorite, setIsFavorite] = useState(false)
-  
+
   // Transform API data to old format for compatibility with existing functions
-  const transformedPlayers = useMemo(() => playersData.map(transformAPIPlayer), [playersData])
-  const transformedPlayer = useMemo(() => player ? transformAPIPlayer(player) : null, [player])
-  
-  const leaderboardBadgesByPlayerId = buildLeaderboardBadges(transformedPlayers, 10)
+  const transformedPlayer = useMemo(() => {
+    if (!playerData) return null
+    return transformAPIPlayer(playerData)
+  }, [playerData])
+
+  const transformedAllPlayers = useMemo(() => allPlayers.map(transformAPIPlayer), [allPlayers])
+  const leaderboardBadgesByPlayerId = buildLeaderboardBadges(transformedAllPlayers, 10)
   const playerBadges = leaderboardBadgesByPlayerId.get(playerId) ?? []
   const router = useRouter()
 
@@ -96,14 +100,14 @@ export default function PlayerDetailPage() {
   }
 //changed
   const getPlayerRank = (stat: keyof OldPlayer) => {
-    const sortedPlayers = [...transformedPlayers].sort(
+    const sortedPlayers = [...transformedAllPlayers].sort(
   (a: OldPlayer, b: OldPlayer) => (b[stat] as number) - (a[stat] as number)
 )
     return sortedPlayers.findIndex((p: OldPlayer) => p.id === playerData!.id) + 1
   }
 
   const getSimilarPlayers = () => {
-    return transformedPlayers
+    return transformedAllPlayers
       .filter((p: OldPlayer) => p.id !== playerData!.id && p.position === playerData!.position)
       .sort((a: OldPlayer, b: OldPlayer) => Math.abs(b.gAPm - playerData!.gAPm) - Math.abs(a.gAPm - playerData!.gAPm))
       .slice(0, 3)
@@ -111,6 +115,18 @@ export default function PlayerDetailPage() {
 
   const ratings = getPerformanceRating(playerData)
   const similarPlayers = getSimilarPlayers()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="text-center p-8">
+          <CardContent>
+            <h2 className="text-2xl font-bold mb-4">Loading Player...</h2>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">
