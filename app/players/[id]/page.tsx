@@ -39,15 +39,15 @@ const transformAPIPlayer = (apiPlayer: any): OldPlayer => ({
 export default function PlayerDetailPage() {
   const params = useParams()
   const playerId = Number.parseInt(params.id as string)
-  const { player: playerData, isLoading } = usePlayer(playerId)
+  const { player: apiPlayerData, isLoading } = usePlayer(playerId)
   const { players: allPlayers } = usePlayers() // Only needed for similar players/leaderboard
   const [isFavorite, setIsFavorite] = useState(false)
 
   // Transform API data to old format for compatibility with existing functions
-  const transformedPlayer = useMemo(() => {
-    if (!playerData) return null
-    return transformAPIPlayer(playerData)
-  }, [playerData])
+  const playerData = useMemo(() => {
+    if (!apiPlayerData) return null
+    return transformAPIPlayer(apiPlayerData)
+  }, [apiPlayerData])
 
   const transformedAllPlayers = useMemo(() => allPlayers.map(transformAPIPlayer), [allPlayers])
   const leaderboardBadgesByPlayerId = buildLeaderboardBadges(transformedAllPlayers, 10)
@@ -58,7 +58,7 @@ export default function PlayerDetailPage() {
     setIsFavorite(isFavouritePlayer(playerId))
   }, [playerId])
 
-  if (!player) {
+  if (!playerData) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="text-center p-8">
@@ -73,9 +73,6 @@ export default function PlayerDetailPage() {
       </div>
     )
   }
-
-  // After this point, we know player exists, so transformedPlayer is not null
-  const playerData = transformedPlayer!
 
   const formatPlayerName = (name: string) => {
     return name
