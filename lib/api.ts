@@ -25,6 +25,7 @@ async function adminApiCall(endpoint: string, options: RequestInit = {}) {
   return apiCall(endpoint, {
     ...options,
     headers: {
+      'Content-Type': 'application/json',
       ...options.headers,
       'x-admin-token': ADMIN_TOKEN,
     },
