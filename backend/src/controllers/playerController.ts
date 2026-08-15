@@ -200,6 +200,9 @@ export async function updatePlayer(req: Request, res: Response) {
       image,
     });
 
+    // Reload the player to get the updated data
+    await player.reload();
+
     const stats = computeStatsFromAggregates(player);
     const playerData = player.toJSON();
     

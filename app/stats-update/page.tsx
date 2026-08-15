@@ -135,7 +135,7 @@ export default function StatsUpdatePage() {
         <Card>
           <CardHeader>
             <CardTitle>Select Player</CardTitle>
-            <CardDescription>Choose a player to update their totals.</CardDescription>
+            <CardDescription >Choose a player to update their totals.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Select value={selectedId} onValueChange={(v) => setSelectedId(v)}>
@@ -148,7 +148,7 @@ export default function StatsUpdatePage() {
                   .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                   .map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 w-26 h-50">
                         <img 
                           src={p.image || "/placeholder.svg?height=32&width=24&query=football player"} 
                           alt={p.name}

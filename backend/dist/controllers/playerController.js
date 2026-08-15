@@ -162,6 +162,8 @@ async function updatePlayer(req, res) {
             assists: assists !== undefined ? parseInt(assists) : player.assists,
             image,
         });
+        // Reload the player to get the updated data
+        await player.reload();
         const stats = (0, stats_1.computeStatsFromAggregates)(player);
         const playerData = player.toJSON();
         // If image is a relative path, convert to full URL using frontend URL
