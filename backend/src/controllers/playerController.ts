@@ -15,8 +15,18 @@ export async function listPlayers(req: Request, res: Response) {
         ? computeStatsFromMatches(matches)
         : computeStatsFromAggregates(player);
 
+      const playerData = player.toJSON();
+      
+      // If image is a relative path, convert to full URL using frontend URL
+      let imageUrl = playerData.image;
+      if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('/uploads/')) {
+        const frontendUrl = process.env.CORS_ORIGIN || 'https://efootball-stats-six.vercel.app';
+        imageUrl = `${frontendUrl}${imageUrl}`;
+      }
+
       return {
-        ...player.toJSON(),
+        ...playerData,
+        image: imageUrl,
         stats,
       };
     });
@@ -44,8 +54,20 @@ export async function getPlayer(req: Request, res: Response) {
       ? computeStatsFromMatches(matches)
       : computeStatsFromAggregates(player);
 
+    const playerData = player.toJSON();
+    
+    // If image is a relative path, convert to full URL using frontend URL
+    let imageUrl = playerData.image;
+    if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('/uploads/')) {
+      const frontendUrl = process.env.CORS_ORIGIN || 'https://efootball-stats-six.vercel.app';
+      imageUrl = `${frontendUrl}${imageUrl}`;
+    }
+
     res.json({
-      player: player.toJSON(),
+      player: {
+        ...playerData,
+        image: imageUrl,
+      },
       matches,
       stats,
     });
@@ -91,9 +113,20 @@ export async function createPlayer(req: Request, res: Response) {
     });
 
     const stats = computeStatsFromAggregates(player);
+    const playerData = player.toJSON();
+    
+    // If image is a relative path, convert to full URL using frontend URL
+    let imageUrl = playerData.image;
+    if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('/uploads/')) {
+      const frontendUrl = process.env.CORS_ORIGIN || 'https://efootball-stats-six.vercel.app';
+      imageUrl = `${frontendUrl}${imageUrl}`;
+    }
 
     res.status(201).json({
-      player: player.toJSON(),
+      player: {
+        ...playerData,
+        image: imageUrl,
+      },
       stats,
     });
   } catch (error) {
@@ -149,9 +182,20 @@ export async function updatePlayer(req: Request, res: Response) {
     });
 
     const stats = computeStatsFromAggregates(player);
+    const playerData = player.toJSON();
+    
+    // If image is a relative path, convert to full URL using frontend URL
+    let imageUrl = playerData.image;
+    if (imageUrl && imageUrl.startsWith('/') && !imageUrl.startsWith('/uploads/')) {
+      const frontendUrl = process.env.CORS_ORIGIN || 'https://efootball-stats-six.vercel.app';
+      imageUrl = `${frontendUrl}${imageUrl}`;
+    }
 
     res.json({
-      player: player.toJSON(),
+      player: {
+        ...playerData,
+        image: imageUrl,
+      },
       stats,
     });
   } catch (error) {
