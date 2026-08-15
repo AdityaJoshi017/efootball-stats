@@ -148,7 +148,7 @@ export default function StatsUpdatePage() {
                   .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                   .map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
-                      <div className="flex items-center gap-2 w-26 h-50">
+                      <div className="flex items-center gap-2 w-16 h-24">
                         <img 
                           src={p.image || "/placeholder.svg?height=32&width=24&query=football player"} 
                           alt={p.name}
