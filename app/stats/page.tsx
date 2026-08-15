@@ -23,17 +23,17 @@ const calculateSimilarityScore = (player1: Player, player2: Player): number => {
 
   // Calculate normalized differences (0 to 1 scale) for each metric
   const gPmDiff = 1 - Math.min(
-    Math.abs((player1.gPm - player2.gPm) / Math.max(0.1, Math.max(player1.gPm, player2.gPm))), 
+    Math.abs(((player1.stats?.gPm || 0) - (player2.stats?.gPm || 0)) / Math.max(0.1, Math.max(player1.stats?.gPm || 0, player2.stats?.gPm || 0))), 
     1
   )
   
   const aPmDiff = 1 - Math.min(
-    Math.abs((player1.aPm - player2.aPm) / Math.max(0.1, Math.max(player1.aPm, player2.aPm))), 
+    Math.abs(((player1.stats?.aPm || 0) - (player2.stats?.aPm || 0)) / Math.max(0.1, Math.max(player1.stats?.aPm || 0, player2.stats?.aPm || 0))), 
     1
   )
   
   const gAPmDiff = 1 - Math.min(
-    Math.abs((player1.gAPm - player2.gAPm) / Math.max(0.1, Math.max(player1.gAPm, player2.gAPm))), 
+    Math.abs(((player1.stats?.gAPm || 0) - (player2.stats?.gAPm || 0)) / Math.max(0.1, Math.max(player1.stats?.gAPm || 0, player2.stats?.gAPm || 0))), 
     1
   )
 
@@ -87,9 +87,9 @@ const similarSearchResults = useMemo(() => {
     const totalGoals = filteredPlayers.reduce((sum, p) => sum + p.goal, 0)
     const totalAssists = filteredPlayers.reduce((sum, p) => sum + p.assists, 0)
     const totalApps = filteredPlayers.reduce((sum, p) => sum + p.apps, 0)
-    const avgAge = filteredPlayers.reduce((sum, p) => sum + p.age, 0) / totalPlayers
-    const avgGPM = filteredPlayers.reduce((sum, p) => sum + p.gPm, 0) / totalPlayers
-    const avgAPM = filteredPlayers.reduce((sum, p) => sum + p.aPm, 0) / totalPlayers
+    const avgAge = totalPlayers > 0 ? filteredPlayers.reduce((sum, p) => sum + p.age, 0) / totalPlayers : 0
+    const avgGPM = totalPlayers > 0 ? filteredPlayers.reduce((sum, p) => sum + (p.stats?.gPm || 0), 0) / totalPlayers : 0
+    const avgAPM = totalPlayers > 0 ? filteredPlayers.reduce((sum, p) => sum + (p.stats?.aPm || 0), 0) / totalPlayers : 0
 
     return {
       totalPlayers,
@@ -112,9 +112,9 @@ const similarSearchResults = useMemo(() => {
         playerCount: positionPlayers.length,
         avgGoals: (positionPlayers.reduce((sum, p) => sum + p.goal, 0) / positionPlayers.length).toFixed(1),
         avgAssists: (positionPlayers.reduce((sum, p) => sum + p.assists, 0) / positionPlayers.length).toFixed(1),
-        avgGPM: (positionPlayers.reduce((sum, p) => sum + p.gPm, 0) / positionPlayers.length).toFixed(3),
-        avgAPM: (positionPlayers.reduce((sum, p) => sum + p.aPm, 0) / positionPlayers.length).toFixed(3),
-        topPlayer: positionPlayers.reduce((top, p) => (p.gAPm > top.gAPm ? p : top)),
+        avgGPM: (positionPlayers.reduce((sum, p) => sum + (p.stats?.gPm || 0), 0) / positionPlayers.length).toFixed(3),
+        avgAPM: (positionPlayers.reduce((sum, p) => sum + (p.stats?.aPm || 0), 0) / positionPlayers.length).toFixed(3),
+        topPlayer: positionPlayers.reduce((top, p) => ((p.stats?.gAPm || 0) > (top.stats?.gAPm || 0) ? p : top)),
       }
     }).filter(Boolean)
     return positionGroups
@@ -126,8 +126,8 @@ const similarSearchResults = useMemo(() => {
       return {
         cardType,
         count: cardTypePlayers.length,
-        avgGoals: (cardTypePlayers.reduce((sum, p) => sum + p.goal, 0) / cardTypePlayers.length).toFixed(1),
-        avgAssists: (cardTypePlayers.reduce((sum, p) => sum + p.assists, 0) / cardTypePlayers.length).toFixed(1),
+        avgGoals: cardTypePlayers.length > 0 ? (cardTypePlayers.reduce((sum, p) => sum + p.goal, 0) / cardTypePlayers.length).toFixed(1) : '0.0',
+        avgAssists: cardTypePlayers.length > 0 ? (cardTypePlayers.reduce((sum, p) => sum + p.assists, 0) / cardTypePlayers.length).toFixed(1) : '0.0',
       }
     })
     return cardTypeGroups
@@ -150,7 +150,7 @@ const similarSearchResults = useMemo(() => {
         reliability: reliabilityFactor(cards.reduce((sum: number, card: PlayerCard) => sum + card.apps, 0)),
         eis: calculateEIS(cards[0])?.EIS.toFixed(2) || 'N/A'
       }))
-      .sort((a, b) => b.gAPm - a.gAPm) // Sort by G+A per match
+      .sort((a, b) => (b.gAPm || 0) - (a.gAPm || 0)) // Sort by G+A per match
   }
 
   // Get position analysis
@@ -161,10 +161,10 @@ const similarSearchResults = useMemo(() => {
       
       const weights = positionWeights[position] || { goal: 0.5, assist: 0.5 }
       const totalImpact = positionPlayers.reduce((sum, p) => {
-        return sum + (p.gPm * weights.goal + p.aPm * weights.assist)
+        return sum + ((p.stats?.gPm || 0) * weights.goal + (p.stats?.aPm || 0) * weights.assist)
       }, 0)
       
-      const avgImpact = (totalImpact / positionPlayers.length).toFixed(3)
+      const avgImpact = positionPlayers.length > 0 ? (totalImpact / positionPlayers.length).toFixed(3) : '0.000'
       
       return {
         position,
@@ -172,7 +172,7 @@ const similarSearchResults = useMemo(() => {
         avgImpact,
         expectedGPM: weights.goal.toFixed(2),
         expectedAPM: weights.assist.toFixed(2),
-        topPlayer: positionPlayers.reduce((top, p) => (p.gAPm > top.gAPm ? p : top))
+        topPlayer: positionPlayers.reduce((top, p) => ((p.stats?.gAPm || 0) > (top.stats?.gAPm || 0) ? p : top))
       }
     }).filter(Boolean)
   }
@@ -400,10 +400,10 @@ const similarSearchResults = useMemo(() => {
                                   </div>
                                   <div className="flex gap-1 mt-1">
                                     <Badge variant="secondary" className="text-xs">
-                                      {player.gPm.toFixed(2)} G/90
+                                      {(player.stats?.gPm || 0).toFixed(2)} G/90
                                     </Badge>
                                     <Badge variant="secondary" className="text-xs">
-                                      {player.aPm.toFixed(2)} A/90
+                                      {(player.stats?.aPm || 0).toFixed(2)} A/90
                                     </Badge>
                                   </div>
                                 </div>
@@ -531,7 +531,7 @@ const similarSearchResults = useMemo(() => {
                             <td className="p-1.5 sm:p-2 text-right">{player.totalGoals}</td>
                             <td className="p-1.5 sm:p-2 text-right">{player.totalAssists}</td>
                             <td className="p-1.5 sm:p-2 text-right hidden sm:table-cell">{player.totalAssists}</td>
-                            <td className="p-1.5 sm:p-2 text-right font-medium">{player.gAPm.toFixed(2)}</td>
+                            <td className="p-1.5 sm:p-2 text-right font-medium">{(player.gAPm || 0).toFixed(2)}</td>
                             <td className="p-1.5 sm:p-2 text-right hidden md:table-cell">{player.eis}</td>
                             <td className="p-1.5 sm:p-2 text-right hidden sm:table-cell">
                               <div className="flex items-center justify-end gap-1">
@@ -587,7 +587,7 @@ const similarSearchResults = useMemo(() => {
                           </div>
                           <div className="bg-muted/20 p-2 rounded">
                             <p className="text-xs text-muted-foreground">G+A/90</p>
-                            <p className="font-bold text-sm">{pos.topPlayer.gAPm.toFixed(2)}</p>
+                            <p className="font-bold text-sm">{(pos.topPlayer.stats?.gAPm || 0).toFixed(2)}</p>
                           </div>
                         </div>
                         

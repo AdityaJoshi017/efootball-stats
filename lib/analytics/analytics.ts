@@ -1,10 +1,11 @@
 import { Player, playersData } from "@/lib/players-data"
+import { Player as APIPlayer } from "@/lib/use-players"
 
 /* =====================================================
    TYPES
 ===================================================== */
 
-export type PlayerCard = Player
+export type PlayerCard = Player | APIPlayer
 
 export interface CareerSummary {
   name: string
@@ -35,8 +36,10 @@ export const playersGroupedByName: Record<string, PlayerCard[]> =
 
 export function getBestCard(cards: PlayerCard[]): PlayerCard {
   return cards.reduce((best, current) => {
-    if (current.gAPm > best.gAPm) return current
-    if (current.gAPm === best.gAPm && current.apps > best.apps) return current
+    const currentGAPm = 'stats' in current ? current.stats?.gAPm || 0 : current.gAPm
+    const bestGAPm = 'stats' in best ? best.stats?.gAPm || 0 : best.gAPm
+    if (currentGAPm > bestGAPm) return current
+    if (currentGAPm === bestGAPm && current.apps > best.apps) return current
     return best
   })
 }
@@ -55,9 +58,9 @@ export function getCareerSummary(cards: PlayerCard[]): CareerSummary {
     totalApps,
     totalGoals,
     totalAssists,
-    gPm: totalGoals / totalApps,
-    aPm: totalAssists / totalApps,
-    gAPm: (totalGoals + totalAssists) / totalApps,
+    gPm: totalApps > 0 ? totalGoals / totalApps : 0,
+    aPm: totalApps > 0 ? totalAssists / totalApps : 0,
+    gAPm: totalApps > 0 ? (totalGoals + totalAssists) / totalApps : 0,
     cardsCount: cards.length,
   }
 }
@@ -97,9 +100,12 @@ export function calculateEIS(player: PlayerCard) {
   const weights = positionWeights[player.position]
   if (!weights) return null
 
+  const gPm = 'stats' in player ? player.stats?.gPm || 0 : player.gPm
+  const aPm = 'stats' in player ? player.stats?.aPm || 0 : player.aPm
+
   const baseImpact =
-    player.gPm * weights.goal +
-    player.aPm * weights.assist
+    gPm * weights.goal +
+    aPm * weights.assist
 
   const reliability = reliabilityFactor(player.apps)
 
