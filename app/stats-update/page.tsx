@@ -139,7 +139,7 @@ export default function StatsUpdatePage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Select value={selectedId} onValueChange={(v) => setSelectedId(v)}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full w-16 h-24">
                 <SelectValue placeholder={isLoading ? "Loading players..." : "Select a player"} />
               </SelectTrigger>
               <SelectContent>
