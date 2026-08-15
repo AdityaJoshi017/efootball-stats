@@ -43,17 +43,18 @@ export default function LeaderboardsPage() {
 
   const filterPlayers = (players: Player[]) => {
     return players.filter((player) => {
-      const positionMatch = positionFilter === "all" || player.position === positionFilter
-      const cardTypeMatch = cardTypeFilter === "all" || player.cardType === cardTypeFilter
+      const positionMatch = positionFilter === "all" || (player.position || '') === positionFilter
+      const cardTypeMatch = cardTypeFilter === "all" || (player.cardType || '') === cardTypeFilter
       const searchMatch =
         searchQuery === "" ||
-        player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        player.team.toLowerCase().includes(searchQuery.toLowerCase())
+        (player.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (player.team || '').toLowerCase().includes(searchQuery.toLowerCase())
 
       let ageMatch = true
-      if (ageFilter === "young") ageMatch = player.age <= 25
-      if (ageFilter === "prime") ageMatch = player.age > 25 && player.age <= 32
-      if (ageFilter === "veteran") ageMatch = player.age > 32
+      const playerAge = player.age || 0
+      if (ageFilter === "young") ageMatch = playerAge <= 25
+      if (ageFilter === "prime") ageMatch = playerAge > 25 && playerAge <= 32
+      if (ageFilter === "veteran") ageMatch = playerAge > 32
 
       return positionMatch && cardTypeMatch && searchMatch && ageMatch
     })
@@ -102,7 +103,7 @@ export default function LeaderboardsPage() {
 
   const getTopPlayers = (category: keyof Player, limit = 10) => {
     const filtered = filterPlayers(playersData)
-    return filtered.sort((a, b) => (b[category] as number) - (a[category] as number)).slice(0, limit)
+    return filtered.sort((a, b) => ((b[category] as number) || 0) - ((a[category] as number) || 0)).slice(0, limit)
   }
 
   const getPositionIcon = (rank: number) => {
@@ -390,7 +391,7 @@ export default function LeaderboardsPage() {
                   players={getTopPlayers("gAPm")}
                   statKey="gAPm"
                   statLabel="G+A per Match"
-                  formatValue={(value) => value.toFixed(3)}
+                  formatValue={(value) => (value || 0).toFixed(3)}
                   showTrend={true}
                 />
               </CardContent>
@@ -427,7 +428,7 @@ export default function LeaderboardsPage() {
                         </div>
                         <div className="flex justify-between">
                           <span>G+A/Match:</span>
-                          <span className="font-semibold">{player.gAPm.toFixed(3)}</span>
+                          <span className="font-semibold">{(player.gAPm || 0).toFixed(3)}</span>
                         </div>
                       </div>
                     </div>
@@ -558,7 +559,7 @@ export default function LeaderboardsPage() {
                               <div className="text-2xl font-bold text-primary">{team.goals + team.assists}</div>
                               <div className="text-sm text-muted-foreground">Total G+A</div>
                               <div className="text-xs text-muted-foreground">
-                                {team.avgGoalsPerPlayer.toFixed(1)} G/P • {team.avgAssistsPerPlayer.toFixed(1)} A/P
+                                {(team.avgGoalsPerPlayer || 0).toFixed(1)} G/P • {(team.avgAssistsPerPlayer || 0).toFixed(1)} A/P
                               </div>
                             </div>
                           </div>
