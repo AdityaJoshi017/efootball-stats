@@ -110,14 +110,16 @@ export const adminApi = {
     assists: number;
     imageUrl?: string;
   }) => {
-    // JSON request with imageUrl
+    // Transform imageUrl to image for backend compatibility
+    const data = playerData.imageUrl ? { ...playerData, image: playerData.imageUrl } : playerData;
+    
     const response = await fetch(`${API_BASE_URL}/api/players`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-admin-token': ADMIN_TOKEN,
       },
-      body: JSON.stringify(playerData),
+      body: JSON.stringify(data),
     });
 
     if (!response.ok) {
@@ -140,9 +142,12 @@ export const adminApi = {
     assists?: number;
     imageUrl?: string;
   }) => {
+    // Transform imageUrl to image for backend compatibility
+    const data = playerData.imageUrl ? { ...playerData, image: playerData.imageUrl } : playerData;
+    
     return adminApiCall(`/api/players/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(playerData),
+      body: JSON.stringify(data),
     });
   },
   
