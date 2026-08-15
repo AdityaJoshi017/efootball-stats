@@ -69,8 +69,8 @@ export default function LeaderboardsPage() {
         teamMap.set(team, { goals: 0, assists: 0, players: 0 })
       }
       const stats = teamMap.get(team)!
-      stats.goals += player.goal
-      stats.assists += player.assists
+      stats.goals += (player.goal || 0)
+      stats.assists += (player.assists || 0)
       stats.players += 1
     })
 
@@ -78,10 +78,10 @@ export default function LeaderboardsPage() {
       .map(([team, stats]) => ({
         team,
         ...stats,
-        avgGoalsPerPlayer: stats.goals / stats.players,
-        avgAssistsPerPlayer: stats.assists / stats.players,
+        avgGoalsPerPlayer: stats.players > 0 ? stats.goals / stats.players : 0,
+        avgAssistsPerPlayer: stats.players > 0 ? stats.assists / stats.players : 0,
       }))
-      .sort((a, b) => b.goals + b.assists - (a.goals + a.assists))
+      .sort((a, b) => (b.goals + b.assists) - (a.goals + a.assists))
   }
 
   const getAgeGroupStats = () => {
@@ -194,7 +194,7 @@ export default function LeaderboardsPage() {
                   )}
                   <div>
                     <div className="text-2xl font-bold text-primary">
-                      {formatValue ? formatValue(player[statKey] as number) : player[statKey]}
+                      {formatValue ? formatValue((player[statKey] as number) || 0) : (player[statKey] || 0)}
                     </div>
                     <div className="text-sm text-muted-foreground">{statLabel}</div>
                   </div>

@@ -49,7 +49,8 @@ exports.app = app;
 const PORT = process.env.PORT || 8000;
 // Middleware
 app.use((0, cors_1.default)({
-    origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'https://efootball-stats-six.vercel.app'],
+    origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'https://efootball-stats-six.vercel.app', 'https://efootball-stats-3yphg3iqf-joshiadityaambrish-2036s-projects.vercel.app'],
+    credentials: true,
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
