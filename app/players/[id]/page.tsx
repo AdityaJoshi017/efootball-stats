@@ -121,7 +121,7 @@ export default function PlayerDetailPage() {
             <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-8">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
                 <img
-                  src={playerData.image && !playerData.image.startsWith('/uploads/') ? playerData.image : (playerData.image ? `${NEXT_PUBLIC_IMAGE_URL}${playerData.image}` : "/placeholder.svg?height=120&width=120&query=football player")}
+                  src={playerData.image && !playerData.image.startsWith('/uploads/') ? playerData.image : (playerData.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${playerData.image}` : "/placeholder.svg?height=120&width=120&query=football player")}
                   alt={playerData.name}
                   className="w-32 h-44 sm:w-40 sm:h-56 rounded-none object-cover border-background shadow-md"
                 />
@@ -495,7 +495,7 @@ export default function PlayerDetailPage() {
                     <Link key={similarPlayer.id} href={`/players/${similarPlayer.id}`}>
                       <div className="flex items-center gap-2 sm:gap-4 p-2 sm:p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
                         <img
-                          src={similarPlayer.image && !similarPlayer.image.startsWith('/uploads/') ? similarPlayer.image : (similarPlayer.image ? `${NEXT_PUBLIC_IMAGE_URL}${similarPlayer.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
+                          src={similarPlayer.image && !similarPlayer.image.startsWith('/uploads/') ? similarPlayer.image : (similarPlayer.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${similarPlayer.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                           alt={similarPlayer.name}
                           className="w-24 h-32 sm:w-32 sm:h-44 rounded-none object-cover flex-shrink-0"
                         />

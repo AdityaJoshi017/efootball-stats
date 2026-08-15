@@ -3,6 +3,7 @@ import { connectDB, sequelize } from './db';
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -17,8 +18,15 @@ const startServer = async () => {
     await sequelize.sync();
     console.log('Database synchronized successfully.');
 
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = path.join(process.cwd(), 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+      console.log('Created uploads directory');
+    }
+
     // Serve static files from uploads directory
-    app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+    app.use('/uploads', express.static(uploadsDir));
 
     // Start server
     app.listen(PORT, () => {

@@ -235,7 +235,7 @@ export default function PlayersPage() {
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-4">
             <img
-              src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=64&width=64&query=football player")}
+              src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${player.image}` : "/placeholder.svg?height=64&width=64&query=football player")}
               alt={player.name}
               className="w-40 h-56 rounded-none object-cover"
             />
@@ -359,7 +359,7 @@ export default function PlayersPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <img
-                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
+                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                   alt={player.name}
                   className="w-16 h-24 rounded-sm object-cover"
                 />
@@ -408,7 +408,7 @@ export default function PlayersPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <img
-                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${"http://localhost:8000"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
+                  src={player.image && !player.image.startsWith('/uploads/') ? player.image : (player.image ? `${process.env.NEXT_PUBLIC_API_URL || "https://efootball-stats-backend.onrender.com"}${player.image}` : "/placeholder.svg?height=48&width=48&query=football player")}
                   alt={player.name}
                   className="w-40 h-56 rounded-none object-cover"
                 />
