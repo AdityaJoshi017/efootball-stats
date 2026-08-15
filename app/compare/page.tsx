@@ -51,11 +51,11 @@ const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
   cardType: apiPlayer.cardType,
   apps: apiPlayer.stats.apps,
   goal: apiPlayer.stats.goals,
-  assists: apiPlayer.stats.assists,
-  gPlusA: apiPlayer.stats.gPlusA,
-  gPm: apiPlayer.stats.gPm,
-  aPm: apiPlayer.stats.aPm,
-  gAPm: apiPlayer.stats.gAPm,
+  assists: apiPlayer.stats?.assists || 0,
+  gPlusA: apiPlayer.stats?.gPlusA || 0,
+  gPm: apiPlayer.stats?.gPm || 0,
+  aPm: apiPlayer.stats?.aPm || 0,
+  gAPm: apiPlayer.stats?.gAPm || 0,
   image: apiPlayer.image
 })
 const PRESETS = [
@@ -281,9 +281,9 @@ export default function ComparePage() {
       playerCount: teamPlayers.length,
       totalGoals: teamPlayers.reduce((sum, p) => sum + p.goal, 0),
       totalAssists: teamPlayers.reduce((sum, p) => sum + p.assists, 0),
-      avgGPm: teamPlayers.reduce((sum, p) => sum + p.gPm, 0) / teamPlayers.length,
-      avgAPm: teamPlayers.reduce((sum, p) => sum + p.aPm, 0) / teamPlayers.length,
-      avgAge: Math.round(teamPlayers.reduce((sum, p) => sum + p.age, 0) / teamPlayers.length),
+      avgGPm: teamPlayers.length > 0 ? teamPlayers.reduce((sum, p) => sum + p.gPm, 0) / teamPlayers.length : 0,
+      avgAPm: teamPlayers.length > 0 ? teamPlayers.reduce((sum, p) => sum + p.aPm, 0) / teamPlayers.length : 0,
+      avgAge: teamPlayers.length > 0 ? Math.round(teamPlayers.reduce((sum, p) => sum + p.age, 0) / teamPlayers.length) : 0,
     }
   }
   
@@ -294,10 +294,10 @@ export default function ComparePage() {
     return {
       position,
       playerCount: posPlayers.length,
-      avgGoals: (posPlayers.reduce((sum, p) => sum + p.goal, 0) / posPlayers.length).toFixed(1),
-      avgAssists: (posPlayers.reduce((sum, p) => sum + p.assists, 0) / posPlayers.length).toFixed(1),
-      avgGPm: (posPlayers.reduce((sum, p) => sum + p.gPm, 0) / posPlayers.length).toFixed(3),
-      avgAPm: (posPlayers.reduce((sum, p) => sum + p.aPm, 0) / posPlayers.length).toFixed(3),
+      avgGoals: posPlayers.length > 0 ? (posPlayers.reduce((sum, p) => sum + p.goal, 0) / posPlayers.length).toFixed(1) : '0.0',
+      avgAssists: posPlayers.length > 0 ? (posPlayers.reduce((sum, p) => sum + p.assists, 0) / posPlayers.length).toFixed(1) : '0.0',
+      avgGPm: posPlayers.length > 0 ? (posPlayers.reduce((sum, p) => sum + p.gPm, 0) / posPlayers.length).toFixed(3) : '0.000',
+      avgAPm: posPlayers.length > 0 ? (posPlayers.reduce((sum, p) => sum + p.aPm, 0) / posPlayers.length).toFixed(3) : '0.000',
       topPlayer: posPlayers.reduce((top, p) => (p.gAPm > top.gAPm ? p : top)),
     }
   }
@@ -353,11 +353,11 @@ export default function ComparePage() {
         apps: 0.1,
       }
       const distance =
-        Math.abs(p1.gPm - p2.gPm) * weights.gPm +
-        Math.abs(p1.aPm - p2.aPm) * weights.aPm +
-        Math.abs(p1.gAPm - p2.gAPm) * weights.gAPm +
-        Math.abs(p1.age - p2.age) * weights.age +
-        Math.abs((p1.apps - p2.apps) / 1000) * weights.apps
+        Math.abs((p1.gPm || 0) - (p2.gPm || 0)) * weights.gPm +
+        Math.abs((p1.aPm || 0) - (p2.aPm || 0)) * weights.aPm +
+        Math.abs((p1.gAPm || 0) - (p2.gAPm || 0)) * weights.gAPm +
+        Math.abs((p1.age || 0) - (p2.age || 0)) * weights.age +
+        Math.abs(((p1.apps || 0) - (p2.apps || 0)) / 1000) * weights.apps
       return distance
     }
 
@@ -381,12 +381,12 @@ export default function ComparePage() {
 
     // Calculate base metrics (0-100 scale)
     const metrics = {
-      attacking: Math.min(player.gPm * 150, 100), // More weight on goal scoring
-      playmaking: Math.min(player.aPm * 200, 100), // More weight on assists
+      attacking: Math.min((player.gPm || 0) * 150, 100), // More weight on goal scoring
+      playmaking: Math.min((player.aPm || 0) * 200, 100), // More weight on assists
       consistency: player.apps > 0 
         ? Math.min((player.goal + player.assists) / player.apps * 10, 100)
         : 0, // Based on goals + assists per appearance
-      efficiency: Math.min((player.gAPm * 100) / 1.5, 100) // Normalized efficiency
+      efficiency: Math.min(((player.gAPm || 0) * 100) / 1.5, 100) // Normalized efficiency
     };
 
     // Calculate weighted overall
@@ -463,17 +463,17 @@ export default function ComparePage() {
     return {
       // Attacking: Goals per match (70%) and conversion rate (30%)
       attacking: player.apps > 0 
-        ? (player.gPm * 150 * 0.7) + (conversionRate * 100 * 0.3)
+        ? ((player.gPm || 0) * 150 * 0.7) + (conversionRate * 100 * 0.3)
         : 0,
       
       // Playmaking: Assists per match (100% for now, can be enhanced with more data)
       playmaking: player.apps > 0
-        ? player.aPm * 200
+        ? (player.aPm || 0) * 200
         : 0,
       
       // Efficiency: Goals + assists per match (100%)
       efficiency: player.apps > 0
-        ? player.gAPm * 100
+        ? (player.gAPm || 0) * 100
         : 0,
       
       // Experience: Based on appearances with diminishing returns
@@ -556,15 +556,15 @@ export default function ComparePage() {
     return [
       {
         stat: "G/M",
-        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat(p.gPm.toFixed(3)) }), {}),
+        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat((p.gPm || 0).toFixed(3)) }), {}),
       },
       {
         stat: "A/M",
-        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat(p.aPm.toFixed(3)) }), {}),
+        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat((p.aPm || 0).toFixed(3)) }), {}),
       },
       {
         stat: "G+A/M",
-        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat(p.gAPm.toFixed(3)) }), {}),
+        ...selectedPlayers.reduce((acc, p) => ({ ...acc, [`${p.name}_${p.id}`]: Number.parseFloat((p.gAPm || 0).toFixed(3)) }), {}),
       },
     ]
   }
@@ -591,9 +591,9 @@ export default function ComparePage() {
         p.goal,
         p.assists,
         p.gPlusA,
-        p.gPm.toFixed(3),
-        p.aPm.toFixed(3),
-        p.gAPm.toFixed(3)
+        (p.gPm || 0).toFixed(3),
+        (p.aPm || 0).toFixed(3),
+        (p.gAPm || 0).toFixed(3)
       ])
     ];
     
