@@ -162,10 +162,20 @@ async function updatePlayer(req, res) {
             assists: assists !== undefined ? parseInt(assists) : player.assists,
             image,
         });
-        // Reload the player to get the updated data
-        await player.reload();
-        const stats = (0, stats_1.computeStatsFromAggregates)(player);
-        const playerData = player.toJSON();
+        // Fetch fresh data from database to ensure we get updated values
+        const updatedPlayer = await models_1.Player.findByPk(req.params.id);
+        if (!updatedPlayer) {
+            return res.status(404).json({ error: 'Player not found after update' });
+        }
+        const stats = (0, stats_1.computeStatsFromAggregates)(updatedPlayer);
+        const playerData = updatedPlayer.toJSON();
+        // Debug logging to check updated values
+        console.log('Updated player data:', {
+            apps: playerData.apps,
+            goal: playerData.goal,
+            assists: playerData.assists,
+            inputValues: { apps, goal, assists }
+        });
         // If image is a relative path, convert to full URL using frontend URL
         let fullImageUrl = playerData.image;
         if (fullImageUrl && fullImageUrl.startsWith('/') && !fullImageUrl.startsWith('/uploads/')) {
