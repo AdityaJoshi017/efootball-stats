@@ -62,18 +62,12 @@ export default function StatsUpdatePage() {
 
   // Add player from URL parameter if present
   useEffect(() => {
-    const playerName = searchParams?.get('playerName')
-    if (playerName && players.length > 0 && !urlPlayerProcessed.current) {
-      // Find player by name (case insensitive, partial match)
-      const player = players.find(p => 
-        p.name.toLowerCase().includes(playerName.toLowerCase())
-      )
-      if (player) {
-        setSelectedId(String(player.id))
-        urlPlayerProcessed.current = true
-      }
+    const playerId = searchParams?.get('playerId')
+    if (playerId && !urlPlayerProcessed.current) {
+      setSelectedId(playerId)
+      urlPlayerProcessed.current = true
     }
-  }, [searchParams, players])
+  }, [searchParams])
 
   const selectedPlayer: Player | undefined = useMemo(() => {
     const id = Number(selectedId)
@@ -85,6 +79,7 @@ export default function StatsUpdatePage() {
   const [goal, setGoal] = useState<string>("")
   const [assists, setAssists] = useState<string>("")
   const [saved, setSaved] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (!selectedPlayer) {
@@ -153,7 +148,14 @@ export default function StatsUpdatePage() {
                   .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                   .map((p) => (
                     <SelectItem key={p.id} value={String(p.id)}>
-                      {p.name || 'Unknown Player'}
+                      <div className="flex items-center gap-2">
+                        <img 
+                          src={p.image || "/placeholder.svg?height=32&width=24&query=football player"} 
+                          alt={p.name}
+                          className="w-8 h-12 object-cover rounded"
+                        />
+                        <span>{p.name || 'Unknown Player'}</span>
+                      </div>
                     </SelectItem>
                   ))}
               </SelectContent>
@@ -200,17 +202,26 @@ export default function StatsUpdatePage() {
 
               <div className="flex gap-3">
                 <Button
-                  disabled={!canSave}
-                  onClick={() => {
+                  disabled={!canSave || isSaving}
+                  onClick={async () => {
                     if (!selectedPlayer) return
-                    updatePlayer(selectedPlayer.id, {
-                      apps: parsed.apps,
-                      goal: parsed.goal,
-                      assists: parsed.assists,
-                    })
-                    setSaved(true)
+                    setIsSaving(true)
+                    try {
+                      await updatePlayer(selectedPlayer.id, {
+                        apps: parsed.apps,
+                        goal: parsed.goal,
+                        assists: parsed.assists,
+                      })
+                      setSaved(true)
+                    } catch (error) {
+                      console.error("Failed to update player:", error)
+                      alert("Failed to update player. Please try again.")
+                    } finally {
+                      setIsSaving(false)
+                    }
                   }}
                 >
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   Save Update
                 </Button>
                 {selectedPlayer && (

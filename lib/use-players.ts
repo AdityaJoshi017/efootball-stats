@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { api } from "./api"
+import { api, adminApi } from "./api"
 import { playersData as defaultPlayers, type Player as OldPlayer } from "./players-data"
 
 export type Player = {
@@ -108,10 +108,45 @@ export function usePlayers() {
     setPlayers((prev) => [...prev, newPlayer])
   }
 
-  const updatePlayer = (playerId: number, updatedPlayer: Player) => {
-    setPlayers((prev) => 
-      prev.map((p) => p.id === playerId ? { ...updatedPlayer, name: updatedPlayer.name || 'Unknown Player' } : p)
-    )
+  const updatePlayer = async (playerId: number, updatedStats: { apps: number; goal: number; assists: number }) => {
+    try {
+      // Call the backend API to update the player
+      await adminApi.updatePlayer(playerId, {
+        apps: updatedStats.apps,
+        goal: updatedStats.goal,
+        assists: updatedStats.assists,
+      })
+      
+      // Update local state after successful API call
+      setPlayers((prev) => 
+        prev.map((p) => {
+          if (p.id === playerId) {
+            const newApps = updatedStats.apps
+            const newGoal = updatedStats.goal
+            const newAssists = updatedStats.assists
+            return {
+              ...p,
+              apps: newApps,
+              goal: newGoal,
+              assists: newAssists,
+              stats: {
+                apps: newApps,
+                goals: newGoal,
+                assists: newAssists,
+                gPlusA: newGoal + newAssists,
+                gPm: newApps > 0 ? newGoal / newApps : 0,
+                aPm: newApps > 0 ? newAssists / newApps : 0,
+                gAPm: newApps > 0 ? (newGoal + newAssists) / newApps : 0,
+              }
+            }
+          }
+          return p
+        })
+      )
+    } catch (error) {
+      console.error("Failed to update player:", error)
+      throw error
+    }
   }
 
   const deletePlayer = (playerId: number) => {
