@@ -172,6 +172,9 @@ export default function StatsUpdatePage() {
                           p.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           p.team?.toLowerCase().includes(searchQuery.toLowerCase())
                         )
+                        .filter((player, index, self) => 
+                          index === self.findIndex((p) => p.id === player.id)
+                        )
                         .slice()
                         .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
                         .map((p) => (
