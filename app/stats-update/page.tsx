@@ -5,6 +5,7 @@ import { usePlayers, type Player } from "@/lib/use-players"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, ArrowUp, ArrowDown, Minus, Check, Loader2, Plus, X } from "lucide-react"
@@ -18,7 +19,7 @@ type Derived = {
 }
 
 const calcDerived = (apps: number, goal: number, assists: number): Derived => {
-  if (apps <= 0) return { gPm: 0, aPm: 0, gAPm: 0 }
+  if (apps === 0) return { gPm: 0, aPm: 0, gAPm: 0 }
   return {
     gPm: goal / apps,
     aPm: assists / apps,
@@ -26,54 +27,11 @@ const calcDerived = (apps: number, goal: number, assists: number): Derived => {
   }
 }
 
-const Trend = ({ before, after }: { before: number; after: number }) => {
-  if (after > before) {
-    return (
-      <span className="inline-flex items-center gap-1 text-green-600">
-        <ArrowUp className="w-4 h-4" />
-        {after.toFixed(3)}
-      </span>
-    )
-  }
-
-  if (after < before) {
-    return (
-      <span className="inline-flex items-center gap-1 text-red-600">
-        <ArrowDown className="w-4 h-4" />
-        {after.toFixed(3)}
-      </span>
-    )
-  }
-
-  return (
-    <span className="inline-flex items-center gap-1 text-muted-foreground">
-      <Minus className="w-4 h-4" />
-      {after.toFixed(3)}
-    </span>
-  )
-}
-
 export default function StatsUpdatePage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
-  const { players, isLoading, updatePlayer } = usePlayers()
+  const { players, updatePlayer } = usePlayers()
   const [selectedId, setSelectedId] = useState<string>("")
-  const urlPlayerProcessed = useRef(false)
-
-  // Add player from URL parameter if present
-  useEffect(() => {
-    const playerId = searchParams?.get('playerId')
-    if (playerId && !urlPlayerProcessed.current) {
-      setSelectedId(playerId)
-      urlPlayerProcessed.current = true
-    }
-  }, [searchParams])
-
-  const selectedPlayer: Player | undefined = useMemo(() => {
-    const id = Number(selectedId)
-    if (!Number.isFinite(id)) return undefined
-    return players.find((p) => p.id === id)
-  }, [players, selectedId])
-
   const [apps, setApps] = useState<string>("")
   const [goal, setGoal] = useState<string>("")
   const [assists, setAssists] = useState<string>("")
@@ -81,48 +39,72 @@ export default function StatsUpdatePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>("")
 
-  useEffect(() => {
-    if (!selectedPlayer) {
-      setApps("")
-      setGoal("")
-      setAssists("")
-      setSaved(false)
-      return
-    }
+  const isLoading = players.length === 0
 
-    setApps(String(selectedPlayer.apps))
-    setGoal(String(selectedPlayer.goal))
-    setAssists(String(selectedPlayer.assists))
-    setSaved(false)
+  // URL-based selection using playerId
+  useEffect(() => {
+    const playerId = searchParams.get("playerId")
+    if (playerId) {
+      setSelectedId(playerId)
+    }
+  }, [searchParams])
+
+  const selectedPlayer = players.find((p) => p.id === Number(selectedId))
+
+  // Set initial values when player is selected
+  useEffect(() => {
+    if (selectedPlayer) {
+      setApps(String(selectedPlayer.apps || 0))
+      setGoal(String(selectedPlayer.goal || 0))
+      setAssists(String(selectedPlayer.assists || 0))
+      setSaved(false)
+    }
   }, [selectedPlayer])
 
-  const parsed = useMemo(() => {
-    const nextApps = Math.max(0, Number(apps))
-    const nextGoal = Math.max(0, Number(goal))
-    const nextAssists = Math.max(0, Number(assists))
-    return {
-      apps: Number.isFinite(nextApps) ? nextApps : 0,
-      goal: Number.isFinite(nextGoal) ? nextGoal : 0,
-      assists: Number.isFinite(nextAssists) ? nextAssists : 0,
-    }
+  const derived = useMemo(() => {
+    const appsNum = Number(apps) || 0
+    const goalNum = Number(goal) || 0
+    const assistsNum = Number(assists) || 0
+    return calcDerived(appsNum, goalNum, assistsNum)
   }, [apps, goal, assists])
 
-  const beforeDerived = useMemo(() => {
-    if (!selectedPlayer) return null
+  const oldDerived = useMemo(() => {
+    if (!selectedPlayer) return { gPm: 0, aPm: 0, gAPm: 0 }
     return calcDerived(selectedPlayer.apps, selectedPlayer.goal, selectedPlayer.assists)
   }, [selectedPlayer])
 
-  const afterDerived = useMemo(() => {
-    if (!selectedPlayer) return null
-    return calcDerived(parsed.apps, parsed.goal, parsed.assists)
-  }, [selectedPlayer, parsed.apps, parsed.goal, parsed.assists])
+  const handleSave = async () => {
+    if (!selectedPlayer) return
+    setIsSaving(true)
+    setSaved(false)
+    
+    try {
+      await updatePlayer(selectedPlayer.id, {
+        apps: Number(apps),
+        goal: Number(goal),
+        assists: Number(assists),
+      })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (error) {
+      console.error("Failed to update player:", error)
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
-  const canSave = Boolean(selectedPlayer) && Number.isFinite(parsed.apps) && Number.isFinite(parsed.goal) && Number.isFinite(parsed.assists)
+  const increment = (setter: (v: string) => void, current: string) => {
+    setter(String(Number(current) + 1))
+  }
+
+  const decrement = (setter: (v: string) => void, current: string) => {
+    setter(String(Math.max(0, Number(current) - 1)))
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 space-y-6">
-        <div className="flex items-start justify-between gap-4">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">Stats Update</h1>
             <p className="text-muted-foreground">Update Apps/Goals/Assists and see how per-match metrics change.</p>
@@ -195,107 +177,129 @@ export default function StatsUpdatePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
+        {selectedPlayer && (
+          <Card className="mt-6">
             <CardHeader>
-              <CardTitle>Update Totals</CardTitle>
-              <CardDescription>Enter new totals (absolute values).</CardDescription>
+              <CardTitle>Update Stats</CardTitle>
+              <CardDescription>
+                Modify totals and watch per-match metrics update in real-time.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Apps</label>
-                  <Input value={apps} onChange={(e) => setApps(e.target.value)} inputMode="numeric" />
+                  <Label>Appearances</Label>
+                  <div className="flex items-center gap-2">
+                    <Button size="icon" variant="outline" onClick={() => decrement(setApps, apps)}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      value={apps}
+                      onChange={(e) => setApps(e.target.value)}
+                      className="text-center"
+                    />
+                    <Button size="icon" variant="outline" onClick={() => increment(setApps, apps)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Goals</label>
-                  <Input value={goal} onChange={(e) => setGoal(e.target.value)} inputMode="numeric" />
+                  <Label>Goals</Label>
+                  <div className="flex items-center gap-2">
+                    <Button size="icon" variant="outline" onClick={() => decrement(setGoal, goal)}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      value={goal}
+                      onChange={(e) => setGoal(e.target.value)}
+                      className="text-center"
+                    />
+                    <Button size="icon" variant="outline" onClick={() => increment(setGoal, goal)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Assists</label>
-                  <Input value={assists} onChange={(e) => setAssists(e.target.value)} inputMode="numeric" />
+                  <Label>Assists</Label>
+                  <div className="flex items-center gap-2">
+                    <Button size="icon" variant="outline" onClick={() => decrement(setAssists, assists)}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                      type="number"
+                      value={assists}
+                      onChange={(e) => setAssists(e.target.value)}
+                      className="text-center"
+                    />
+                    <Button size="icon" variant="outline" onClick={() => increment(setAssists, assists)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button
-                  disabled={!canSave || isSaving}
-                  onClick={async () => {
-                    if (!selectedPlayer) return
-                    setIsSaving(true)
-                    try {
-                      await updatePlayer(selectedPlayer.id, {
-                        apps: parsed.apps,
-                        goal: parsed.goal,
-                        assists: parsed.assists,
-                      })
-                      setSaved(true)
-                    } catch (error) {
-                      console.error("Failed to update player:", error)
-                      alert("Failed to update player. Please try again.")
-                    } finally {
-                      setIsSaving(false)
-                    }
-                  }}
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Save Update
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground mb-1">Goals/Match</div>
+                  <div className="text-2xl font-bold">
+                    {derived.gPm.toFixed(3)}
+                    {derived.gPm !== oldDerived.gPm && (
+                      <span className={`ml-2 text-sm ${derived.gPm > oldDerived.gPm ? 'text-green-500' : 'text-red-500'}`}>
+                        {derived.gPm > oldDerived.gPm ? <ArrowUp className="inline h-4 w-4" /> : <ArrowDown className="inline h-4 w-4" />}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground mb-1">Assists/Match</div>
+                  <div className="text-2xl font-bold">
+                    {derived.aPm.toFixed(3)}
+                    {derived.aPm !== oldDerived.aPm && (
+                      <span className={`ml-2 text-sm ${derived.aPm > oldDerived.aPm ? 'text-green-500' : 'text-red-500'}`}>
+                        {derived.aPm > oldDerived.aPm ? <ArrowUp className="inline h-4 w-4" /> : <ArrowDown className="inline h-4 w-4" />}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground mb-1">G+A/Match</div>
+                  <div className="text-2xl font-bold">
+                    {derived.gAPm.toFixed(3)}
+                    {derived.gAPm !== oldDerived.gAPm && (
+                      <span className={`ml-2 text-sm ${derived.gAPm > oldDerived.gAPm ? 'text-green-500' : 'text-red-500'}`}>
+                        {derived.gAPm > oldDerived.gAPm ? <ArrowUp className="inline h-4 w-4" /> : <ArrowDown className="inline h-4 w-4" />}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button onClick={handleSave} disabled={isSaving}>
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : saved ? (
+                    <>
+                      <Check className="mr-2 h-4 w-4" />
+                      Saved!
+                    </>
+                  ) : (
+                    "Save Update"
+                  )}
                 </Button>
-                {selectedPlayer && (
-                  <Button variant="outline" asChild>
-                    <Link href={`/players/${selectedPlayer.id}`}>Open Player Page</Link>
-                  </Button>
-                )}
               </div>
-
-              {saved && <p className="text-sm text-green-600">Saved. Player stats are updated across the site.</p>}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Before vs After</CardTitle>
-              <CardDescription>See per-match metrics changes.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!selectedPlayer || !beforeDerived || !afterDerived ? (
-                <p className="text-sm text-muted-foreground">Select a player to preview changes.</p>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-lg border">
-                    <span className="font-medium">Goals/Match (GPM)</span>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">{beforeDerived.gPm.toFixed(3)} →</div>
-                      <div className="font-semibold">
-                        <Trend before={beforeDerived.gPm} after={afterDerived.gPm} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-lg border">
-                    <span className="font-medium">Assists/Match (APM)</span>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">{beforeDerived.aPm.toFixed(3)} →</div>
-                      <div className="font-semibold">
-                        <Trend before={beforeDerived.aPm} after={afterDerived.aPm} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-lg border">
-                    <span className="font-medium">G+A/Match</span>
-                    <div className="text-right">
-                      <div className="text-xs text-muted-foreground">{beforeDerived.gAPm.toFixed(3)} →</div>
-                      <div className="font-semibold">
-                        <Trend before={beforeDerived.gAPm} after={afterDerived.gAPm} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        )}
       </div>
     </div>
   )
