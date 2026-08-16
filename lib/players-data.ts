@@ -14,28 +14,28 @@ export interface Player {
   gAPm: number; // goals/assists per match
   image?: string;
   // Advanced metrics
-  xG90?: number;  // Expected goals per 90 minutes
-  xA90?: number;  // Expected assists per 90 minutes
-  dribbles?: number;
-  keyPasses?: number;
-  defensiveActions?: number;
-  progressivePasses?: number;
-  shotCreatingActions?: number;
-  goalCreatingActions?: number;
+  // xG90?: number;  // Expected goals per 90 minutes
+  // xA90?: number;  // Expected assists per 90 minutes
+  // dribbles?: number;
+  // keyPasses?: number;
+  // defensiveActions?: number;
+  // progressivePasses?: number;
+  // shotCreatingActions?: number;
+  // goalCreatingActions?: number;
 }
 
 // Helper function to add default values for advanced metrics
-const withAdvancedMetrics = (player: Player): Player & Required<Omit<Player, 'id' | 'name' | 'team' | 'position' | 'age' | 'cardType' | 'apps' | 'goal' | 'assists' | 'gPlusA' | 'gPm' | 'aPm' | 'gAPm' | 'image'>> => ({
-  ...player,
-  xG90: player.xG90 ?? player.gPm * 0.9,
-  xA90: player.xA90 ?? player.aPm * 0.85,
-  dribbles: player.dribbles ?? Math.round(player.apps * 2.5),
-  keyPasses: player.keyPasses ?? Math.round(player.assists * 3),
-  defensiveActions: player.defensiveActions ?? Math.round(player.apps * 1.2),
-  progressivePasses: player.progressivePasses ?? Math.round(player.apps * 3.5),
-  shotCreatingActions: player.shotCreatingActions ?? Math.round((player.goal + player.assists) * 2.5),
-  goalCreatingActions: player.goalCreatingActions ?? Math.round((player.goal + player.assists) * 1.2),
-});
+// const withAdvancedMetrics = (player: Player): Player & Required<Omit<Player, 'id' | 'name' | 'team' | 'position' | 'age' | 'cardType' | 'apps' | 'goal' | 'assists' | 'gPlusA' | 'gPm' | 'aPm' | 'gAPm' | 'image'>> => ({
+//   ...player,
+//   xG90: player.xG90 ?? player.gPm * 0.9,
+//   xA90: player.xA90 ?? player.aPm * 0.85,
+//   dribbles: player.dribbles ?? Math.round(player.apps * 2.5),
+//   keyPasses: player.keyPasses ?? Math.round(player.assists * 3),
+//   defensiveActions: player.defensiveActions ?? Math.round(player.apps * 1.2),
+//   progressivePasses: player.progressivePasses ?? Math.round(player.apps * 3.5),
+//   shotCreatingActions: player.shotCreatingActions ?? Math.round((player.goal + player.assists) * 2.5),
+//   goalCreatingActions: player.goalCreatingActions ?? Math.round((player.goal + player.assists) * 1.2),
+// });
 
 export const playersData: Player[] = [
   {

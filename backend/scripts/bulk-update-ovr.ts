@@ -111,7 +111,7 @@ async function bulkUpdateOVR() {
     for (const update of validUpdates) {
       try {
         const result = await Player.update(
-          { ovrRating: update.ovrRating },
+          { ovr_rating: update.ovrRating },
           { where: { id: update.id } }
         );
         
