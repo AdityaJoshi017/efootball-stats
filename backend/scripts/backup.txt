@@ -5,7 +5,7 @@
     "team": "barcelona",
     "position": "CF",
     "cardType": "epic-big time",
-    "ovrRating": 106
+    "ovrRating": 104
   },
   {
     "id": 2,
@@ -13,7 +13,7 @@
     "team": "NAN",
     "position": "AMF",
     "cardType": "epic",
-    "ovrRating": 103
+    "ovrRating": 104
   },
   {
     "id": 3,
@@ -21,7 +21,7 @@
     "team": "barcelona",
     "position": "RWF",
     "cardType": "epic",
-    "ovrRating": 105
+    "ovrRating": 104
   },
   {
     "id": 4,
@@ -61,7 +61,7 @@
     "team": "barcelona",
     "position": "LWF",
     "cardType": "epic",
-    "ovrRating": 103
+    "ovrRating": 99
   },
   {
     "id": 9,
@@ -117,7 +117,7 @@
     "team": "real madrid",
     "position": "AMF",
     "cardType": "highlight",
-    "ovrRating": 102
+    "ovrRating": 100
   },
   {
     "id": 16,
@@ -149,7 +149,7 @@
     "team": "psg",
     "position": "CF",
     "cardType": "potw",
-    "ovrRating": 102
+    "ovrRating": 101
   },
   {
     "id": 20,
@@ -173,7 +173,7 @@
     "team": "man city",
     "position": "AMF",
     "cardType": "highlight",
-    "ovrRating": 101
+    "ovrRating": 100
   },
   {
     "id": 23,
@@ -205,7 +205,7 @@
     "team": "NAN",
     "position": "SS",
     "cardType": "show-time",
-    "ovrRating": 100
+    "ovrRating": 99
   },
   {
     "id": 27,
@@ -317,7 +317,7 @@
     "team": "santos",
     "position": "CF",
     "cardType": "epic",
-    "ovrRating": 101
+    "ovrRating": 99
   },
   {
     "id": 41,

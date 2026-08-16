@@ -249,7 +249,7 @@ export default function PlayersPage() {
                 className="w-40 h-56 rounded-none object-cover"
               />
               {(player as any).ovrRating && (
-                <div className="absolute top-2 right-2 bg-yellow-400 text-black font-bold px-2 py-1 rounded"
+                <div className="absolute top-2 left-2 bg-[#ffff33] text-black font-bold px-2 py-1 rounded"
                      style={{ 
                        fontFamily: '"Courier New", monospace',
                        textTransform: 'uppercase',
@@ -390,7 +390,7 @@ export default function PlayersPage() {
                     className="w-16 h-24 rounded-sm object-cover"
                   />
                   {(player as any).ovrRating && (
-                    <div className="absolute top-1 right-1 bg-yellow-400 text-black font-bold px-1 py-0.5 rounded text-xs"
+                    <div className="absolute top-1 left-1 bg-[#ffff33] text-black font-bold px-1 py-0.5 rounded text-xs"
                          style={{ 
                            fontFamily: '"Courier New", monospace',
                            textTransform: 'uppercase',
@@ -452,7 +452,7 @@ export default function PlayersPage() {
                     className="w-40 h-56 rounded-none object-cover"
                   />
                   {(player as any).ovrRating && (
-                    <div className="absolute top-2 right-2 bg-yellow-400 text-black font-bold px-2 py-1 rounded"
+                    <div className="absolute top-2 left-2 bg-[#ffff33] text-black font-bold px-2 py-1 rounded"
                          style={{ 
                            fontFamily: '"Courier New", monospace',
                            textTransform: 'uppercase',
