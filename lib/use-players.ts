@@ -83,7 +83,7 @@ export function usePlayers() {
           assists: p.assists || 0,
           image: p.image,
           accountId: p.accountId || 1,
-          ovrRating: p.ovrRating,
+          ovrRating: p.ovrRating || p.ovr_rating,
           stats: p.stats || {
             apps: p.apps || 0,
             goals: p.goal || 0,

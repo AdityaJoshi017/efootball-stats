@@ -28,6 +28,8 @@ export async function listPlayers(req: Request, res: Response) {
         ...playerData,
         image: fullImageUrl,
         stats,
+        ovrRating: playerData.ovr_rating,
+        accountId: playerData.account_id,
       };
     });
 
@@ -67,6 +69,8 @@ export async function getPlayer(req: Request, res: Response) {
       player: {
         ...playerData,
         image: fullImageUrl,
+        ovrRating: playerData.ovr_rating,
+        accountId: playerData.account_id,
       },
       matches,
       stats,

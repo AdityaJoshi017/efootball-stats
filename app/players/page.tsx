@@ -4,6 +4,10 @@ const getSortValue = (player: OldPlayer, sortBy: SortKey) => {
     return calculatePlayerRating(player)
   }
 
+  if (sortBy === "ovrRating") {
+    return (player as any).ovrRating || 0
+  }
+
   return getStatValue(player, sortBy)
 }
 import { useState, useMemo, useEffect } from "react"
@@ -37,7 +41,8 @@ const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
   gPm: apiPlayer.stats.gPm,
   aPm: apiPlayer.stats.aPm,
   gAPm: apiPlayer.stats.gAPm,
-  image: apiPlayer.image
+  image: apiPlayer.image,
+  ovrRating: apiPlayer.ovrRating
 })
 import { assignDistinctArchetypes, getPlayerArchetype, PLAYER_ARCHETYPES, getGOATPlayer } from "@/lib/player-archetypes"
 import { calculatePlayerRating } from "@/lib/leaderboard-utils"
@@ -53,6 +58,7 @@ type SortKey =
   | "apps"
   | "age"
   |"overall"
+  |"ovrRating"
 
 // Helper to get stats from transformed Player (OldPlayer format)
 const getStatValue = (player: OldPlayer, key: string) => {
@@ -63,6 +69,7 @@ const getStatValue = (player: OldPlayer, key: string) => {
   if (key === 'gPm') return player.gPm
   if (key === 'aPm') return player.aPm
   if (key === 'apps') return player.apps
+  if (key === 'ovrRating') return (player as any).ovrRating || 0
   return (player as any)[key]
 }
 
@@ -235,11 +242,25 @@ export default function PlayersPage() {
       >
         <CardHeader className="pb-4">
           <div className="flex items-center space-x-4">
-            <img
-              src={player.image || "/placeholder.svg?height=64&width=64&query=football player"}
-              alt={player.name}
-              className="w-40 h-56 rounded-none object-cover"
-            />
+            <div className="relative">
+              <img
+                src={player.image || "/placeholder.svg?height=64&width=64&query=football player"}
+                alt={player.name}
+                className="w-40 h-56 rounded-none object-cover"
+              />
+              {(player as any).ovrRating && (
+                <div className="absolute top-2 right-2 bg-yellow-400 text-black font-bold px-2 py-1 rounded"
+                     style={{ 
+                       fontFamily: '"Courier New", monospace',
+                       textTransform: 'uppercase',
+                       letterSpacing: '1px',
+                       fontSize: '14px',
+                       fontWeight: '900'
+                     }}>
+                  {(player as any).ovrRating}
+                </div>
+              )}
+            </div>
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-xl">{formatPlayerName(player.name)}</CardTitle>
@@ -362,11 +383,24 @@ export default function PlayersPage() {
           <div className="md:hidden">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <img
-                  src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
-                  alt={player.name}
-                  className="w-16 h-24 rounded-sm object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
+                    alt={player.name}
+                    className="w-16 h-24 rounded-sm object-cover"
+                  />
+                  {(player as any).ovrRating && (
+                    <div className="absolute top-1 right-1 bg-yellow-400 text-black font-bold px-1 py-0.5 rounded text-xs"
+                         style={{ 
+                           fontFamily: '"Courier New", monospace',
+                           textTransform: 'uppercase',
+                           letterSpacing: '0.5px',
+                           fontWeight: '900'
+                         }}>
+                      {(player as any).ovrRating}
+                    </div>
+                  )}
+                </div>
                 <div>
                   <div className="flex items-center gap-1">
                     <h3 className="font-semibold text-sm sm:text-base">{formatPlayerName(player.name)}</h3>
@@ -411,11 +445,25 @@ export default function PlayersPage() {
           <div className="hidden md:block">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <img
-                  src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
-                  alt={player.name}
-                  className="w-40 h-56 rounded-none object-cover"
-                />
+                <div className="relative">
+                  <img
+                    src={player.image || "/placeholder.svg?height=48&width=48&query=football player"}
+                    alt={player.name}
+                    className="w-40 h-56 rounded-none object-cover"
+                  />
+                  {(player as any).ovrRating && (
+                    <div className="absolute top-2 right-2 bg-yellow-400 text-black font-bold px-2 py-1 rounded"
+                         style={{ 
+                           fontFamily: '"Courier New", monospace',
+                           textTransform: 'uppercase',
+                           letterSpacing: '1px',
+                           fontSize: '14px',
+                           fontWeight: '900'
+                         }}>
+                      {(player as any).ovrRating}
+                    </div>
+                  )}
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h3 className="font-semibold text-lg">{formatPlayerName(player.name)}</h3>
@@ -563,7 +611,7 @@ export default function PlayersPage() {
                     <SelectItem value="aPm">A per Match</SelectItem>
                     <SelectItem value="apps">Appearances</SelectItem>
                     <SelectItem value="age">Age</SelectItem>
-                    {/* <SelectItem value="{ratings.overall.toFixed(0)}/100">OVR</SelectItem> */}
+                    <SelectItem value="ovrRating">In-Game OVR</SelectItem>
                     <SelectItem value="overall">OVR</SelectItem>
 
 

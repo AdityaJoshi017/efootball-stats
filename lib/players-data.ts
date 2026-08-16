@@ -13,6 +13,7 @@ export interface Player {
   aPm: number; // assists per match
   gAPm: number; // goals/assists per match
   image?: string;
+  ovrRating?: number; // in-game overall rating
   // Advanced metrics
   // xG90?: number;  // Expected goals per 90 minutes
   // xA90?: number;  // Expected assists per 90 minutes

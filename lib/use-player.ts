@@ -55,7 +55,7 @@ const transformAPIPlayer = (apiData: any): Player => {
     assists: player.assists || 0,
     image: player.image,
     accountId: player.accountId || 1,
-    ovrRating: player.ovrRating,
+    ovrRating: player.ovrRating || player.ovr_rating,
     stats,
   };
 };
