@@ -1,5 +1,6 @@
 import { sequelize } from '../src/db';
 import { Player } from '../src/models';
+import { DataTypes } from 'sequelize';
 
 /**
  * This script adds the new columns (account_id and ovr_rating) to the database
@@ -19,7 +20,7 @@ async function migrateDatabase() {
     // Add account_id column with default value 1
     console.log('Adding account_id column...');
     await sequelize.getQueryInterface().addColumn('players', 'account_id', {
-      type: sequelize.Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       defaultValue: 1,
       allowNull: false,
     });
@@ -28,7 +29,7 @@ async function migrateDatabase() {
     // Add ovr_rating column (nullable)
     console.log('Adding ovr_rating column...');
     await sequelize.getQueryInterface().addColumn('players', 'ovr_rating', {
-      type: sequelize.Sequelize.INTEGER,
+      type: DataTypes.INTEGER,
       allowNull: true,
     });
     console.log('✅ ovr_rating column added');
