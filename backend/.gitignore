@@ -32,3 +32,9 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Scripts - Generated templates and updates
+scripts/ovr-template.json
+scripts/ovr-template-excel.txt
+scripts/ovr-updates.json
+scripts/ovr-updates-excel.txt

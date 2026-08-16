@@ -91,7 +91,7 @@ async function bulkUpdateOVR() {
       });
 
       const confirmation = await new Promise<string>((resolve) => {
-        rl.question('', (answer) => {
+        rl.question('', (answer: string) => {
           rl.close();
           resolve(answer);
         });
