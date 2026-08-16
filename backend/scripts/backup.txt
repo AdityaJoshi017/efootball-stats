@@ -1,0 +1,562 @@
+[
+  {
+    "id": 1,
+    "name": "lionel messi",
+    "team": "barcelona",
+    "position": "CF",
+    "cardType": "epic-big time",
+    "ovrRating": 106
+  },
+  {
+    "id": 2,
+    "name": "lionel messi",
+    "team": "NAN",
+    "position": "AMF",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 3,
+    "name": "lionel messi",
+    "team": "barcelona",
+    "position": "RWF",
+    "cardType": "epic",
+    "ovrRating": 105
+  },
+  {
+    "id": 4,
+    "name": "lionel messi",
+    "team": "NAN",
+    "position": "SS",
+    "cardType": "epic",
+    "ovrRating": 104
+  },
+  {
+    "id": 5,
+    "name": "antoine griezmann",
+    "team": "atl madrid",
+    "position": "SS",
+    "cardType": "epic-big time",
+    "ovrRating": 105
+  },
+  {
+    "id": 6,
+    "name": "gabriel batistuta",
+    "team": "fiorentina",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 105
+  },
+  {
+    "id": 7,
+    "name": "david villa",
+    "team": "valencia",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 104
+  },
+  {
+    "id": 8,
+    "name": "neymar jr",
+    "team": "barcelona",
+    "position": "LWF",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 9,
+    "name": "guti",
+    "team": "real madrid",
+    "position": "AMF",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 10,
+    "name": "a. del piero",
+    "team": "juventus",
+    "position": "SS",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 11,
+    "name": "fernando torres",
+    "team": "chelsea",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 12,
+    "name": "johan cruyff",
+    "team": "barcelona",
+    "position": "SS",
+    "cardType": "legendary",
+    "ovrRating": 102
+  },
+  {
+    "id": 13,
+    "name": "desire doue",
+    "team": "psg",
+    "position": "SS",
+    "cardType": "show-time",
+    "ovrRating": 105
+  },
+  {
+    "id": 14,
+    "name": "viktor gyokeres",
+    "team": "sporting-cp",
+    "position": "CF",
+    "cardType": "show-time",
+    "ovrRating": 104
+  },
+  {
+    "id": 15,
+    "name": "jude bellingham",
+    "team": "real madrid",
+    "position": "AMF",
+    "cardType": "highlight",
+    "ovrRating": 102
+  },
+  {
+    "id": 16,
+    "name": "mo salah",
+    "team": "liverpool",
+    "position": "RWF",
+    "cardType": "featured",
+    "ovrRating": 101
+  },
+  {
+    "id": 17,
+    "name": "omar marmoush",
+    "team": "man city",
+    "position": "LMF",
+    "cardType": "show-time",
+    "ovrRating": 103
+  },
+  {
+    "id": 18,
+    "name": "kylian mbappe",
+    "team": "NAN",
+    "position": "LWF",
+    "cardType": "potw",
+    "ovrRating": 101
+  },
+  {
+    "id": 19,
+    "name": "kylian mbappe",
+    "team": "psg",
+    "position": "CF",
+    "cardType": "potw",
+    "ovrRating": 102
+  },
+  {
+    "id": 20,
+    "name": "kylian mbappe",
+    "team": "NAN",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 101
+  },
+  {
+    "id": 21,
+    "name": "kylian mbappe",
+    "team": "psg",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 101
+  },
+  {
+    "id": 22,
+    "name": "kevin de bruyne",
+    "team": "man city",
+    "position": "AMF",
+    "cardType": "highlight",
+    "ovrRating": 101
+  },
+  {
+    "id": 23,
+    "name": "erling haaland",
+    "team": "man city",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 24,
+    "name": "vinicius jr",
+    "team": "real madrid",
+    "position": "LWF",
+    "cardType": "potw",
+    "ovrRating": 101
+  },
+  {
+    "id": 25,
+    "name": "mo salah",
+    "team": "liverpool",
+    "position": "CF",
+    "cardType": "potw",
+    "ovrRating": 101
+  },
+  {
+    "id": 26,
+    "name": "neymar jr",
+    "team": "NAN",
+    "position": "SS",
+    "cardType": "show-time",
+    "ovrRating": 100
+  },
+  {
+    "id": 27,
+    "name": "phil foden",
+    "team": "man city",
+    "position": "RWF",
+    "cardType": "highlight",
+    "ovrRating": 101
+  },
+  {
+    "id": 28,
+    "name": "cristiano ronaldo",
+    "team": "NAN",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 29,
+    "name": "robert lewandowski",
+    "team": "barcelona",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 30,
+    "name": "jude bellingham",
+    "team": "real madrid",
+    "position": "CMF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 31,
+    "name": "ciro immobile",
+    "team": "ss lazio",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 32,
+    "name": "alphonso davies",
+    "team": "bayern munich",
+    "position": "LB",
+    "cardType": "highlight",
+    "ovrRating": 99
+  },
+  {
+    "id": 33,
+    "name": "bernardo silva",
+    "team": "man city",
+    "position": "AMF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 34,
+    "name": "dusan vlahovic",
+    "team": "NAN",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 35,
+    "name": "thomas muller",
+    "team": "bayern munich",
+    "position": "SS",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 36,
+    "name": "mikel oyarzabal",
+    "team": "real sociedad",
+    "position": "LMF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 37,
+    "name": "gaizka mendieta",
+    "team": "barcelona",
+    "position": "RMF",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 38,
+    "name": "diego maradona",
+    "team": "barcelona",
+    "position": "SS",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 39,
+    "name": "dwight yorke",
+    "team": "man united",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 40,
+    "name": "neymar jr",
+    "team": "santos",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 41,
+    "name": "bukayo saka",
+    "team": "arsenal",
+    "position": "RWF",
+    "cardType": "potw",
+    "ovrRating": 103
+  },
+  {
+    "id": 42,
+    "name": "kevin de bruyne",
+    "team": "man city",
+    "position": "AMF",
+    "cardType": "potw",
+    "ovrRating": 100
+  },
+  {
+    "id": 43,
+    "name": "cristiano ronaldo",
+    "team": "NAN",
+    "position": "CF",
+    "cardType": "potw",
+    "ovrRating": 100
+  },
+  {
+    "id": 44,
+    "name": "erling haaland",
+    "team": "man city",
+    "position": "CF",
+    "cardType": "potw",
+    "ovrRating": 100
+  },
+  {
+    "id": 45,
+    "name": "dejan kulusevski",
+    "team": "tottenham",
+    "position": "RWF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 46,
+    "name": "randal kolo muani",
+    "team": "psg",
+    "position": "CF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 47,
+    "name": "neymar jr",
+    "team": "psg",
+    "position": "LWF",
+    "cardType": "potw",
+    "ovrRating": 99
+  },
+  {
+    "id": 48,
+    "name": "victor osimhen",
+    "team": "napoli",
+    "position": "CF",
+    "cardType": "potw",
+    "ovrRating": 99
+  },
+  {
+    "id": 49,
+    "name": "son heung min",
+    "team": "tottenham",
+    "position": "LWF",
+    "cardType": "potw",
+    "ovrRating": 99
+  },
+  {
+    "id": 50,
+    "name": "federico chiesa",
+    "team": "juventus",
+    "position": "RWF",
+    "cardType": "highlight",
+    "ovrRating": 99
+  },
+  {
+    "id": 51,
+    "name": "ruud van nistelrooy",
+    "team": "man united",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 52,
+    "name": "Steven Gerrard",
+    "team": "Liverpool",
+    "position": "CMF",
+    "cardType": "epic",
+    "ovrRating": 105
+  },
+  {
+    "id": 53,
+    "name": "Earling Haaland",
+    "team": "Man city",
+    "position": "CF",
+    "cardType": "epic-big time",
+    "ovrRating": 109
+  },
+  {
+    "id": 54,
+    "name": "Lamine yamal",
+    "team": "Barcelona",
+    "position": "RWF",
+    "cardType": "show-time",
+    "ovrRating": 103
+  },
+  {
+    "id": 55,
+    "name": "Belletti",
+    "team": "Barcelona",
+    "position": "RB",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 56,
+    "name": "Park Ji-Sung",
+    "team": "Man United",
+    "position": "LMF",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 57,
+    "name": "Filippo Inzaghi",
+    "team": "Juventus",
+    "position": "CF",
+    "cardType": "epic",
+    "ovrRating": 104
+  },
+  {
+    "id": 59,
+    "name": "Daniel Van Buyten",
+    "team": "bayern munich",
+    "position": "CB",
+    "cardType": "epic",
+    "ovrRating": 103
+  },
+  {
+    "id": 60,
+    "name": "Ronaldinho",
+    "team": "Barcelona",
+    "position": "LWF",
+    "cardType": "epic-big time",
+    "ovrRating": 103
+  },
+  {
+    "id": 61,
+    "name": "Michael Olise",
+    "team": "bayern munich",
+    "position": "RWF",
+    "cardType": "show-time",
+    "ovrRating": 102
+  },
+  {
+    "id": 62,
+    "name": "Darren Fletcher",
+    "team": "Man United",
+    "position": "CMF",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 63,
+    "name": "Pep Guardiola",
+    "team": "Barcelona",
+    "position": "DMF",
+    "cardType": "epic",
+    "ovrRating": 104
+  },
+  {
+    "id": 64,
+    "name": "Iker Casillas",
+    "team": "Real Madrid",
+    "position": "GK",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 65,
+    "name": "Franz Beckenbauer",
+    "team": "bayern munich",
+    "position": "CB",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 66,
+    "name": "Wayne Rooney",
+    "team": "Man United",
+    "position": "SS",
+    "cardType": "epic",
+    "ovrRating": 102
+  },
+  {
+    "id": 67,
+    "name": "Joao Cancelo",
+    "team": "Barcelona",
+    "position": "RB",
+    "cardType": "highlight",
+    "ovrRating": 98
+  },
+  {
+    "id": 68,
+    "name": "A. Costacurta",
+    "team": "Ac milan",
+    "position": "LB",
+    "cardType": "epic",
+    "ovrRating": 101
+  },
+  {
+    "id": 69,
+    "name": "Pedri",
+    "team": "Barcelona",
+    "position": "CMF",
+    "cardType": "highlight",
+    "ovrRating": 100
+  },
+  {
+    "id": 70,
+    "name": "Ansu Fati",
+    "team": "Barcelona",
+    "position": "LWF",
+    "cardType": "highlight",
+    "ovrRating": 99
+  },
+  {
+    "id": 71,
+    "name": "David Beckham",
+    "team": "Man United",
+    "position": "RMF",
+    "cardType": "legendary",
+    "ovrRating": 98
+  }
+]

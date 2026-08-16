@@ -33,8 +33,24 @@ export class Player extends Model {
   public goal!: number; // total goals
   public assists!: number; // total assists
   public image?: string; // image path or URL
-  public accountId!: number; // account identifier (1, 2, 3, etc.)
-  public ovrRating?: number; // overall rating from game (1-120)
+  public account_id!: number; // account identifier (1, 2, 3, etc.)
+  public ovr_rating?: number; // overall rating from game (1-120)
+  
+  // Virtual fields for camelCase compatibility
+  get accountId(): number {
+    return this.account_id;
+  }
+  set accountId(value: number) {
+    this.account_id = value;
+  }
+  
+  get ovrRating(): number | undefined {
+    return this.ovr_rating;
+  }
+  set ovrRating(value: number | undefined) {
+    this.ovr_rating = value;
+  }
+  
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -92,18 +108,20 @@ Player.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    accountId: {
+    account_id: {
       type: DataTypes.INTEGER,
       defaultValue: 1,
       allowNull: false,
+      field: 'account_id'
     },
-    ovrRating: {
+    ovr_rating: {
       type: DataTypes.INTEGER,
       allowNull: true,
       validate: {
         min: 1,
         max: 120
-      }
+      },
+      field: 'ovr_rating'
     },
   },
   {

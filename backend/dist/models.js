@@ -21,6 +21,19 @@ function generateDisplayName(name, team, position, cardType) {
 }
 // Player DB model (basic fields + aggregates). Derived stats are calculated from aggregates or matches.
 class Player extends sequelize_1.Model {
+    // Virtual fields for camelCase compatibility
+    get accountId() {
+        return this.account_id;
+    }
+    set accountId(value) {
+        this.account_id = value;
+    }
+    get ovrRating() {
+        return this.ovr_rating;
+    }
+    set ovrRating(value) {
+        this.ovr_rating = value;
+    }
 }
 exports.Player = Player;
 Player.init({
@@ -75,18 +88,20 @@ Player.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
-    accountId: {
+    account_id: {
         type: sequelize_1.DataTypes.INTEGER,
         defaultValue: 1,
         allowNull: false,
+        field: 'account_id'
     },
-    ovrRating: {
+    ovr_rating: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: true,
         validate: {
             min: 1,
             max: 120
-        }
+        },
+        field: 'ovr_rating'
     },
 }, {
     sequelize: db_1.sequelize,

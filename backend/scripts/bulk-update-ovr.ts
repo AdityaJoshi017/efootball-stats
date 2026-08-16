@@ -111,7 +111,7 @@ async function bulkUpdateOVR() {
     for (const update of validUpdates) {
       try {
         const result = await Player.update(
-          { ovr_rating: update.ovrRating },
+          { ovr_rating: update.ovrRating }, // Use snake_case for database column
           { where: { id: update.id } }
         );
         
