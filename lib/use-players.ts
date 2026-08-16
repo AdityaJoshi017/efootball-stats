@@ -17,6 +17,8 @@ export type Player = {
   goal: number
   assists: number
   image?: string
+  accountId: number
+  ovrRating?: number
   stats: {
     apps: number
     goals: number
@@ -80,6 +82,8 @@ export function usePlayers() {
           goal: p.goal || 0,
           assists: p.assists || 0,
           image: p.image,
+          accountId: p.accountId || 1,
+          ovrRating: p.ovrRating,
           stats: p.stats || {
             apps: p.apps || 0,
             goals: p.goal || 0,

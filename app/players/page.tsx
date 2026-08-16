@@ -210,20 +210,21 @@ export default function PlayersPage() {
   const PlayerCard = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
-    const { deletePlayer } = usePlayers()
+    // TODO: Re-enable delete functionality when account system is stable
+    // const { deletePlayer } = usePlayers()
 
-    const handleDelete = async () => {
-      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
-        try {
-          await adminApi.deletePlayer(player.id)
-          deletePlayer(player.id)
-          toast.success('Player deleted successfully')
-        } catch (error) {
-          console.error('Error deleting player:', error)
-          toast.error('Failed to delete player')
-        }
-      }
-    }
+    // const handleDelete = async () => {
+    //   if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+    //     try {
+    //       await adminApi.deletePlayer(player.id)
+    //       deletePlayer(player.id)
+    //       toast.success('Player deleted successfully')
+    //     } catch (error) {
+    //       console.error('Error deleting player:', error)
+    //       toast.error('Failed to delete player')
+    //     }
+    //   }
+    // }
 
     return (
       <Card
@@ -314,6 +315,7 @@ export default function PlayersPage() {
           <Button className="flex-1" asChild>
              <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
           </Button>
+          {/* TODO: Re-enable delete button when account system is stable
           <Button 
             className="bg-red-500 hover:bg-red-600 text-white" 
             size="icon"
@@ -322,6 +324,7 @@ export default function PlayersPage() {
           >
             <Trash2 className="h-4 w-4" />
           </Button>
+          */}
         </div>
         </CardContent>
       </Card>
@@ -331,20 +334,21 @@ export default function PlayersPage() {
   const PlayerListItem = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
-    const { deletePlayer } = usePlayers()
+    // TODO: Re-enable delete functionality when account system is stable
+    // const { deletePlayer } = usePlayers()
 
-    const handleDelete = async () => {
-      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
-        try {
-          await adminApi.deletePlayer(player.id)
-          deletePlayer(player.id)
-          toast.success('Player deleted successfully')
-        } catch (error) {
-          console.error('Error deleting player:', error)
-          toast.error('Failed to delete player')
-        }
-      }
-    }
+    // const handleDelete = async () => {
+    //   if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+    //     try {
+    //       await adminApi.deletePlayer(player.id)
+    //       deletePlayer(player.id)
+    //       toast.success('Player deleted successfully')
+    //     } catch (error) {
+    //       console.error('Error deleting player:', error)
+    //       toast.error('Failed to delete player')
+    //     }
+    //   }
+    // }
 
     return (
       <Card
@@ -467,6 +471,7 @@ export default function PlayersPage() {
                   <Button size="sm" asChild>
                     <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
                   </Button>
+                  {/* TODO: Re-enable delete button when account system is stable
                   <Button 
                     size="sm" 
                     className="bg-red-500 hover:bg-red-600 text-white"
@@ -475,6 +480,7 @@ export default function PlayersPage() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
+                  */}
                 </div>
               </div>
             </div>

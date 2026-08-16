@@ -33,6 +33,8 @@ export class Player extends Model {
   public goal!: number; // total goals
   public assists!: number; // total assists
   public image?: string; // image path or URL
+  public accountId!: number; // account identifier (1, 2, 3, etc.)
+  public ovrRating?: number; // overall rating from game (1-120)
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -89,6 +91,19 @@ Player.init(
     image: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    accountId: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+      allowNull: false,
+    },
+    ovrRating: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        min: 1,
+        max: 120
+      }
     },
   },
   {

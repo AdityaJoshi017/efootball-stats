@@ -75,6 +75,19 @@ Player.init({
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
+    accountId: {
+        type: sequelize_1.DataTypes.INTEGER,
+        defaultValue: 1,
+        allowNull: false,
+    },
+    ovrRating: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+        validate: {
+            min: 1,
+            max: 120
+        }
+    },
 }, {
     sequelize: db_1.sequelize,
     modelName: 'Player',
