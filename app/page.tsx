@@ -359,6 +359,110 @@ const leaders = [
     </div>
   </div>
 </section>
+  <footer className="bg-card border-t border-border py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">eFootball Stats</h3>
+              <p className="text-muted-foreground text-sm">
+                The ultimate platform for football player statistics and comparisons.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Features</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/players" className="hover:text-primary">
+                    Player Database
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/compare" className="hover:text-primary">
+                    Player Comparison
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/stats" className="hover:text-primary">
+                    Advanced Stats
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Teams</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link href="/players?team=Barcelona" className="hover:text-primary hover:underline">
+                    Barcelona
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/players?team=Man City" className="hover:text-primary hover:underline">
+                    Man City
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/players?team=PSG" className="hover:text-primary hover:underline">
+                    PSG
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/players?team=Real Madrid" className="hover:text-primary hover:underline">
+                    Real Madrid
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">About me</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <Link
+                    target="_blank"
+                    href="https://instagram.com"
+                    className="hover:text-primary hover:underline"
+                  >
+                    instagram
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    target="_blank"
+                    href="https://x.com"
+                    className="hover:text-primary hover:underline"
+                  >
+                    X (Twitter)
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    target="_blank"
+                    href="https://github.com"
+                    className="hover:text-primary hover:underline"
+                  >
+                    github
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    target="_blank"
+                    href="https://linkedin.com"
+                    className="hover:text-primary hover:underline"
+                  >
+                    linkedin
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+            By Aditya Joshi
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
