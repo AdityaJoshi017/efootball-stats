@@ -469,6 +469,12 @@ export default function PlayerDetailPage() {
                         #{getPlayerRank("apps")}
                       </Badge>
                     </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <span className="font-medium">G+A Ranking</span>
+                      <Badge variant="secondary" className="text-lg font-bold">
+                        #{getPlayerRank("gPlusA")}
+                      </Badge>
+                    </div>
                   </div>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 rounded-lg border">
