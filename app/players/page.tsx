@@ -166,6 +166,18 @@ export default function PlayersPage() {
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
+
+  // Auto-set sort order based on sort type
+  const handleSortChange = (value: string) => {
+    const sortKey = value as SortKey
+    setSortBy(sortKey)
+    // Default to descending for radar rating (higher is better)
+    if (sortKey === "radarRating" || sortKey === "overall" || sortKey === "ovrRating") {
+      setSortOrder("desc")
+    } else {
+      setSortOrder("asc")
+    }
+  }
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
   const [deletePassword, setDeletePassword] = useState("")
@@ -687,7 +699,7 @@ export default function PlayersPage() {
                 <span className="text-sm font-medium">Sort by:</span>
                 <Select
   value={sortBy}
-  onValueChange={(value: string) => setSortBy(value as SortKey)}
+  onValueChange={(value: string) => handleSortChange(value as SortKey)}
 >
   {/* change */}
 
