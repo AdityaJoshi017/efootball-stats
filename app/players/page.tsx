@@ -366,13 +366,13 @@ export default function PlayersPage() {
               {player.cardType}
             </Badge>
             <div className="text-right">
-              <div className="text-sm text-muted-foreground">Goals • Assists</div>
+              <div className="text-sm text-muted-foreground">Goals • Assists • G+A</div>
               <div className="font-bold">
-                {player.goal} • {player.assists}
+                {player.goal} • {player.assists} • {player.gPlusA}
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
+          <div className="grid grid-cols-3 gap-2 mb-4 text-sm">
             <div>
               <span className="text-muted-foreground">Apps:</span>
               <span className="font-semibold ml-1">{player.apps}</span>
@@ -388,6 +388,10 @@ export default function PlayersPage() {
             <div>
               <span className="text-muted-foreground">A/Match:</span>
               <span className="font-semibold ml-1">{player.aPm.toFixed(3)}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">G+A/Match:</span>
+              <span className="font-semibold ml-1">{player.gAPm.toFixed(3)}</span>
             </div>
           </div>
           {/* <div className="flex gap-2">
@@ -495,10 +499,17 @@ export default function PlayersPage() {
                   <div className="text-[10px] text-muted-foreground">A</div>
                 </div>
                 <div className="text-center px-1">
-                  <div className="font-bold text-sm">{player.apps}</div>
-                  <div className="text-[10px] text-muted-foreground">M</div>
+                  <div className="font-bold text-sm">{player.gPlusA}</div>
+                  <div className="text-[10px] text-muted-foreground">G+A</div>
+                </div>
+                <div className="text-center px-1">
+                  <div className="font-bold text-sm">{player.gAPm.toFixed(3)}</div>
+                  <div className="text-[10px] text-muted-foreground">G+A/M</div>
                 </div>
                 <div className="flex flex-col ml-2 space-y-1">
+                  <div className="text-xs text-muted-foreground">
+                    G+A: {player.gPlusA} | G+A/M: {player.gAPm.toFixed(3)}
+                  </div>
                   <Button size="sm" variant="outline" className="h-6 w-14 text-xs p-0" asChild>
                     <Link href={`/players/${player.id}`}>View</Link>
                   </Button>
@@ -574,12 +585,20 @@ export default function PlayersPage() {
                   <div className="text-xs text-muted-foreground">Assists</div>
                 </div>
                 <div className="text-center">
+                  <div className="font-bold">{player.gPlusA}</div>
+                  <div className="text-xs text-muted-foreground">G+A</div>
+                </div>
+                <div className="text-center">
                   <div className="font-bold">{player.gAPm.toFixed(3)}</div>
                   <div className="text-xs text-muted-foreground">G+A/Match</div>
                 </div>
                 <div className="text-center">
-                  <div className="font-bold">{calculatePlayerRating(player)}</div>
-                  <div className="text-xs text-muted-foreground">Rating</div>
+                  <div className="font-bold">{player.gPm.toFixed(3)}</div>
+                  <div className="text-xs text-muted-foreground">G/Match</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold">{player.aPm.toFixed(3)}</div>
+                  <div className="text-xs text-muted-foreground">A/Match</div>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" asChild>
