@@ -277,7 +277,7 @@ export default function PlayersPage() {
   }
 
   const handlePasswordSubmit = async () => {
-    if (deletePassword === "admin123") { // You can change this password
+    if (deletePassword === "donotbeoversmart") { // You can change this password
       try {
         await adminApi.deletePlayer(playerToDelete!.id)
         deletePlayer(playerToDelete!.id)
