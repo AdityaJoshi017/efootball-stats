@@ -1190,10 +1190,18 @@ export default function ComparePage() {
                                       {player[stat.key as keyof Player]}
                                     </Badge>
                                   ) : (
-                                    <Badge
-                                      variant="secondary"
-                                      className={`${getStatColor(player[stat.key as keyof Player] as number, stat.key)} font-bold`}
-                                    >
+                                    // <Badge
+                                    //   variant="secondary"
+                                    //   className={`${getStatColor(player[stat.key as keyof Player] as number, stat.key)} font-bold`}
+                                    // >
+                                      <Badge
+                                          variant="secondary"
+                                          className={`${
+                                            stat.key === "age"
+                                              ? "bg-purple-500 text-white"
+                                              : getStatColor(player[stat.key as keyof Player] as number, stat.key)
+                                          } font-bold`}
+                                      >
                                       {typeof player[stat.key as keyof Player] === "number" &&
                                       (stat.key === "gPm" || stat.key === "aPm" || stat.key === "gAPm")
                                         ? (player[stat.key as keyof Player] as number).toFixed(3)
