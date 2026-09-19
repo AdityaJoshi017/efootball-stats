@@ -184,11 +184,11 @@ export default function PlayersPage() {
   const [selectedCardType, setSelectedCardType] = useState<string>("all")
   const [selectedTeam, setSelectedTeam] = useState<string>(initialTeam)
   const [selectedArchetype, setSelectedArchetype] = useState<string>("all")
-  const [ageRange, setAgeRange] = useState([16, 50])
-  const [goalsRange, setGoalsRange] = useState([0, 2000])
-  const [assistsRange, setAssistsRange] = useState([0, 1000])
-  const [gPlusARange, setGPlusARange] = useState([0, 3000])
-  const [appsRange, setAppsRange] = useState([0, 2000])
+  const [ageRange, setAgeRange] = useState([0, 100])
+  const [goalsRange, setGoalsRange] = useState([0, 5000])
+  const [assistsRange, setAssistsRange] = useState([0, 5000])
+  const [gPlusARange, setGPlusARange] = useState([0, 10000])
+  const [appsRange, setAppsRange] = useState([0, 10000])
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
@@ -251,7 +251,7 @@ export default function PlayersPage() {
       (selectedPosition === "all" || player.position === selectedPosition) &&
       (selectedCardType === "all" || player.cardType === selectedCardType) &&
       (selectedTeam === "all" || player.team.toLowerCase() === selectedTeam.toLowerCase()) &&
-      (selectedArchetype === "all" || archetype.name === selectedArchetype) &&
+      (selectedArchetype === "all" || !archetype.name || archetype.name === selectedArchetype) &&
       player.age >= ageRange[0] &&
       player.age <= ageRange[1] &&
       player.goal >= goalsRange[0] &&
@@ -308,11 +308,11 @@ export default function PlayersPage() {
     setSelectedCardType("all")
     setSelectedTeam("all")
     setSelectedArchetype("all")
-    setAgeRange([16, 50])
-    setGoalsRange([0, 2000])
-    setAssistsRange([0, 1000])
-    setGPlusARange([0, 3000])
-    setAppsRange([0, 2000])
+    setAgeRange([0, 100])
+    setGoalsRange([0, 5000])
+    setAssistsRange([0, 5000])
+    setGPlusARange([0, 10000])
+    setAppsRange([0, 10000])
     setSortBy("name")
     setSortOrder("asc")
   }
@@ -341,11 +341,11 @@ export default function PlayersPage() {
     selectedCardType !== "all",
     selectedTeam !== "all",
     selectedArchetype !== "all",
-    ageRange[0] !== 16 || ageRange[1] !== 50,
-    goalsRange[0] !== 0 || goalsRange[1] !== 2000,
-    assistsRange[0] !== 0 || assistsRange[1] !== 1000,
-    gPlusARange[0] !== 0 || gPlusARange[1] !== 3000,
-    appsRange[0] !== 0 || appsRange[1] !== 2000,
+    ageRange[0] !== 0 || ageRange[1] !== 100,
+    goalsRange[0] !== 0 || goalsRange[1] !== 5000,
+    assistsRange[0] !== 0 || assistsRange[1] !== 5000,
+    gPlusARange[0] !== 0 || gPlusARange[1] !== 10000,
+    appsRange[0] !== 0 || appsRange[1] !== 10000,
   ].filter(Boolean).length
 
   const PlayerCard = ({ player }: { player: OldPlayer }) => {
@@ -853,7 +853,7 @@ export default function PlayersPage() {
                   <label className="text-sm font-medium">
                     Age Range: {ageRange[0]} - {ageRange[1]} years
                   </label>
-                  <Slider value={ageRange} onValueChange={setAgeRange} min={16} max={50} step={1} className="w-full" />
+                  <Slider value={ageRange} onValueChange={setAgeRange} min={0} max={100} step={1} className="w-full" />
                 </div>
 
                 <div className="space-y-2">
@@ -864,7 +864,7 @@ export default function PlayersPage() {
                     value={goalsRange}
                     onValueChange={setGoalsRange}
                     min={0}
-                    max={2000}
+                    max={5000}
                     step={10}
                     className="w-full"
                   />
@@ -878,7 +878,7 @@ export default function PlayersPage() {
                     value={assistsRange}
                     onValueChange={setAssistsRange}
                     min={0}
-                    max={1000}
+                    max={5000}
                     step={5}
                     className="w-full"
                   />
@@ -892,7 +892,7 @@ export default function PlayersPage() {
                     value={gPlusARange}
                     onValueChange={setGPlusARange}
                     min={0}
-                    max={3000}
+                    max={10000}
                     step={10}
                     className="w-full"
                   />
@@ -906,7 +906,7 @@ export default function PlayersPage() {
                     value={appsRange}
                     onValueChange={setAppsRange}
                     min={0}
-                    max={2000}
+                    max={10000}
                     step={10}
                     className="w-full"
                   />
