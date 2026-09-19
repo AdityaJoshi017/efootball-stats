@@ -30,7 +30,6 @@ import { adminApi } from "@/lib/api"
 import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
 
 // Transform API player data to match old Player structure for compatibility
 const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
