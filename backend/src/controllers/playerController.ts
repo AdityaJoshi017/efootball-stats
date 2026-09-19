@@ -84,7 +84,7 @@ export async function getPlayer(req: Request, res: Response) {
 // Create player (admin only)
 export async function createPlayer(req: Request, res: Response) {
   try {
-    const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
+    const { name, team, position, age, cardType, ovrRating, apps, goal, assists, imageUrl } = req.body;
     
     // If no image URL provided, use placeholder or Cloudinary
     let image = imageUrl || undefined;
@@ -112,6 +112,7 @@ export async function createPlayer(req: Request, res: Response) {
       cardType,
       cardSlug,
       displayName,
+      ovr_rating: ovrRating ? parseInt(ovrRating) : null,
       apps: parseInt(apps) || 0,
       goal: parseInt(goal) || 0,
       assists: parseInt(assists) || 0,

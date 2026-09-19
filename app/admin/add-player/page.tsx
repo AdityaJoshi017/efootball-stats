@@ -17,6 +17,7 @@ export default function AddPlayerPage() {
     position: '',
     age: '',
     cardType: '',
+    ovrRating: '',
     apps: '',
     goal: '',
     assists: '',
@@ -90,6 +91,7 @@ export default function AddPlayerPage() {
         position: formData.position,
         age: parseInt(formData.age),
         cardType: formData.cardType,
+        ovrRating: parseInt(formData.ovrRating) || null,
         apps: parseInt(formData.apps) || 0,
         goal: parseInt(formData.goal) || 0,
         assists: parseInt(formData.assists) || 0,
@@ -113,6 +115,7 @@ export default function AddPlayerPage() {
         position: '',
         age: '',
         cardType: '',
+        ovrRating: '',
         apps: '',
         goal: '',
         assists: '',
@@ -224,6 +227,23 @@ export default function AddPlayerPage() {
                     <SelectItem value="potw">Player of the Week</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="ovrRating">In-Game OVR Rating *</Label>
+                <Input
+                  id="ovrRating"
+                  name="ovrRating"
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={formData.ovrRating}
+                  onChange={handleChange}
+                  placeholder="e.g., 95"
+                  required
+                  className="text-lg font-semibold"
+                />
+                <p className="text-xs text-muted-foreground">Player's in-game overall rating (1-120)</p>
               </div>
             </div>
 

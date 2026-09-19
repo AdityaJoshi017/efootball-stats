@@ -42,6 +42,7 @@ export interface Player {
   cardType: string;
   cardSlug: string;
   displayName: string;
+  ovrRating?: number | null;
   apps: number;
   goal: number;
   assists: number;
@@ -106,6 +107,7 @@ export const adminApi = {
     position: string;
     age: number;
     cardType: string;
+    ovrRating?: number | null;
     apps: number;
     goal: number;
     assists: number;
