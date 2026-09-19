@@ -86,48 +86,73 @@ const formatPlayerName = (name: string) => {
     .join(" ")
 }
 
-// Enhanced efficiency rating with weighted metrics (from compare page)
+// Enhanced efficiency rating with weighted metrics (from compare page - EXACT SAME FORMULA)
 const calculateEfficiencyRating = (player: OldPlayer) => {
+  // Weighted metrics (sum should be 1.0)
   const weights = {
-    attacking: 0.35,
-    playmaking: 0.3,
-    consistency: 0.15,
-    experience: 0.1,
-    conversion: 0.1,
-  }
+    attacking: 0.35,  // Goals per match and total goals
+    playmaking: 0.3,  // Assists per match and total assists
+    consistency: 0.15, // Appearances and consistency
+    efficiency: 0.2   // Overall efficiency (goals + assists per match)
+  };
 
-  const attacking = Math.min(100, (player.goal / Math.max(1, player.apps)) * 20 + (player.goal / 10))
-  const playmaking = Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8))
-  const consistency = Math.min(100, (player.apps / 50) * 100)
-  const experience = Math.min(100, (player.age / 35) * 100)
-  const conversion = Math.min(100, (player.goal / Math.max(1, player.goal + player.assists)) * 100)
+  // Calculate base metrics (0-100 scale)
+  const metrics = {
+    attacking: Math.min((player.gPm || 0) * 150, 100), // More weight on goal scoring
+    playmaking: Math.min((player.aPm || 0) * 200, 100), // More weight on assists
+    consistency: player.apps > 0
+      ? Math.min((player.goal + player.assists) / player.apps * 10, 100)
+      : 0, // Based on goals + assists per appearance
+    efficiency: Math.min(((player.gAPm || 0) * 100) / 1.5, 100) // Normalized efficiency
+  };
 
-  const efficiency = (attacking * weights.attacking + 
-                      playmaking * weights.playmaking + 
-                      consistency * weights.consistency + 
-                      experience * weights.experience + 
-                      conversion * weights.conversion)
+  // Calculate weighted overall
+  const overall = (
+    metrics.attacking * weights.attacking +
+    metrics.playmaking * weights.playmaking +
+    metrics.consistency * weights.consistency +
+    metrics.efficiency * weights.efficiency
+  );
 
-  const overall = (attacking + playmaking + consistency + experience + conversion) / 5
-
-  return { efficiency, overall }
+  return {
+    ...metrics,
+    overall: Math.min(overall, 100)
+  };
 }
 
-// Performance category calculation (from compare page)
+// Performance category calculation (from compare page - EXACT SAME FORMULA)
 const getPerformanceCategory = (player: OldPlayer) => {
+  // Calculate shots per match if available, otherwise use a default
   const shotsPerMatch = 1 // Default since we don't have shots data
   const conversionRate = shotsPerMatch > 0 ? player.goal / (shotsPerMatch * player.apps) : 0
 
   return {
-    attacking: Math.min(100, (player.goal / Math.max(1, player.apps)) * 20 + (player.goal / 10)),
-    playmaking: Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8)),
-    consistency: Math.min(100, (player.apps / 50) * 100),
-    experience: Math.min(100, (player.age / 35) * 100),
-    conversion: Math.min(100, conversionRate * 100),
-  }
+    // Attacking: Goals per match (70%) and conversion rate (30%)
+    attacking: player.apps > 0
+      ? ((player.gPm || 0) * 150 * 0.7) + (conversionRate * 100 * 0.3)
+      : 0,
+
+    // Playmaking: Assists per match (100% for now, can be enhanced with more data)
+    playmaking: player.apps > 0
+      ? (player.aPm || 0) * 200
+      : 0,
+
+    // Efficiency: Goals + assists per match (100%)
+    efficiency: player.apps > 0
+      ? (player.gAPm || 0) * 100
+      : 0,
+
+    // Experience: Based on appearances with diminishing returns
+    experience: Math.min(Math.log(player.apps + 1) * 20, 100),
+
+    // Consistency: Based on goals + assists per appearance
+    consistency: player.apps > 0
+      ? Math.min((player.goal + player.assists) / player.apps * 100, 100)
+      : 0
+  };
 }
 
-// Calculate radar rating (from compare page)
+// Calculate radar rating (from compare page - EXACT SAME FORMULA)
 const calculateRadarRating = (player: OldPlayer) => {
   const categories = getPerformanceCategory(player)
   const efficiencyRating = calculateEfficiencyRating(player)
