@@ -188,6 +188,7 @@ export default function PlayersPage() {
   const [goalsRange, setGoalsRange] = useState([0, 2000])
   const [assistsRange, setAssistsRange] = useState([0, 1000])
   const [gPlusARange, setGPlusARange] = useState([0, 3000])
+  const [appsRange, setAppsRange] = useState([0, 2000])
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
@@ -258,7 +259,9 @@ export default function PlayersPage() {
       player.assists >= assistsRange[0] &&
       player.assists <= assistsRange[1] &&
       player.gPlusA >= gPlusARange[0] &&
-      player.gPlusA <= gPlusARange[1]
+      player.gPlusA <= gPlusARange[1] &&
+      player.apps >= appsRange[0] &&
+      player.apps <= appsRange[1]
     )
   })
 
@@ -292,6 +295,7 @@ export default function PlayersPage() {
   goalsRange,
   assistsRange,
   gPlusARange,
+  appsRange,
   sortBy,
   sortOrder,
   goatPlayer,
@@ -308,6 +312,7 @@ export default function PlayersPage() {
     setGoalsRange([0, 2000])
     setAssistsRange([0, 1000])
     setGPlusARange([0, 3000])
+    setAppsRange([0, 2000])
     setSortBy("name")
     setSortOrder("asc")
   }
@@ -340,6 +345,7 @@ export default function PlayersPage() {
     goalsRange[0] !== 0 || goalsRange[1] !== 2000,
     assistsRange[0] !== 0 || assistsRange[1] !== 1000,
     gPlusARange[0] !== 0 || gPlusARange[1] !== 3000,
+    appsRange[0] !== 0 || appsRange[1] !== 2000,
   ].filter(Boolean).length
 
   const PlayerCard = ({ player }: { player: OldPlayer }) => {
@@ -887,6 +893,20 @@ export default function PlayersPage() {
                     onValueChange={setGPlusARange}
                     min={0}
                     max={3000}
+                    step={10}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Matches Played Range: {appsRange[0]} - {appsRange[1]}
+                  </label>
+                  <Slider
+                    value={appsRange}
+                    onValueChange={setAppsRange}
+                    min={0}
+                    max={2000}
                     step={10}
                     className="w-full"
                   />
