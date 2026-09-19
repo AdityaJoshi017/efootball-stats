@@ -119,7 +119,7 @@ const getPerformanceCategory = (player: OldPlayer) => {
 
   return {
     attacking: Math.min(100, (player.goal / Math.max(1, player.apps)) * 20 + (player.goal / 10)),
-    playing: Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8)),
+    playmaking: Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8)),
     consistency: Math.min(100, (player.apps / 50) * 100),
     experience: Math.min(100, (player.age / 35) * 100),
     conversion: Math.min(100, conversionRate * 100),
@@ -133,7 +133,7 @@ const calculateRadarRating = (player: OldPlayer) => {
 
   const radarData = [
     { value: Math.min(categories.attacking, 100) },
-    { value: Math.min(categories.playing, 100) },
+    { value: Math.min(categories.playmaking, 100) },
     { value: Math.min(efficiencyRating.efficiency, 100) },
     { value: Math.min(categories.consistency || 0, 100) },
     { value: Math.min(categories.experience, 100) },
@@ -608,8 +608,8 @@ export default function PlayersPage() {
                     <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
                   </Button>
                   {/* TODO: Re-enable delete button when account system is stable
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     className="bg-red-500 hover:bg-red-600 text-white"
                     onClick={handleDelete}
                     title="Delete Player"
@@ -702,10 +702,6 @@ export default function PlayersPage() {
                     <SelectItem value="ovrRating">In-Game OVR</SelectItem>
                     <SelectItem value="radarRating">Radar Rating</SelectItem>
                     <SelectItem value="overall">OVR</SelectItem>
-                    <SelectItem value="overall">Radar Rating</SelectItem>
-
-
-                    {/* <SelectItem value="overall">OVR</SelectItem> */}
                   </SelectContent>
                 </Select>
                 <Button variant="outline" size="sm" onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}>
