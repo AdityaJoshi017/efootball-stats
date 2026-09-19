@@ -29,6 +29,8 @@ import { type Player as OldPlayer } from "@/lib/players-data"
 import { adminApi } from "@/lib/api"
 import { Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
 // Transform API player data to match old Player structure for compatibility
 const transformAPIPlayer = (apiPlayer: APIPlayer): OldPlayer => ({
@@ -167,6 +169,9 @@ export default function PlayersPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [showFilters, setShowFilters] = useState(false)
+  const [deletePassword, setDeletePassword] = useState("")
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [playerToDelete, setPlayerToDelete] = useState<OldPlayer | null>(null)
   
   // Update selectedTeam when URL parameter changes
   useEffect(() => {
@@ -271,6 +276,24 @@ export default function PlayersPage() {
     setSortOrder("asc")
   }
 
+  const handlePasswordSubmit = async () => {
+    if (deletePassword === "admin123") { // You can change this password
+      try {
+        await adminApi.deletePlayer(playerToDelete!.id)
+        deletePlayer(playerToDelete!.id)
+        toast.success('Player deleted successfully')
+        setShowPasswordDialog(false)
+        setPlayerToDelete(null)
+        setDeletePassword("")
+      } catch (error) {
+        console.error('Error deleting player:', error)
+        toast.error('Failed to delete player')
+      }
+    } else {
+      toast.error('Incorrect password')
+    }
+  }
+
   const activeFiltersCount = [
     searchTerm !== "",
     selectedPosition !== "all",
@@ -286,21 +309,15 @@ export default function PlayersPage() {
   const PlayerCard = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
-    // TODO: Re-enable delete functionality when account system is stable
-    // const { deletePlayer } = usePlayers()
+    const { deletePlayer } = usePlayers()
 
-    // const handleDelete = async () => {
-    //   if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
-    //     try {
-    //       await adminApi.deletePlayer(player.id)
-    //       deletePlayer(player.id)
-    //       toast.success('Player deleted successfully')
-    //     } catch (error) {
-    //       console.error('Error deleting player:', error)
-    //       toast.error('Failed to delete player')
-    //     }
-    //   }
-    // }
+    const handleDelete = () => {
+      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+        setPlayerToDelete(player)
+        setShowPasswordDialog(true)
+        setDeletePassword("")
+      }
+    }
 
     return (
       <Card
@@ -409,16 +426,14 @@ export default function PlayersPage() {
           <Button className="flex-1" asChild>
              <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
           </Button>
-          {/* TODO: Re-enable delete button when account system is stable
-          <Button 
-            className="bg-red-500 hover:bg-red-600 text-white" 
+          <Button
+            className="bg-red-500 hover:bg-red-600 text-white"
             size="icon"
             onClick={handleDelete}
             title="Delete Player"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
-          */}
         </div>
         </CardContent>
       </Card>
@@ -428,21 +443,15 @@ export default function PlayersPage() {
   const PlayerListItem = ({ player }: { player: OldPlayer }) => {
     const archetype = getPlayerArchetype(player, goatPlayer, archetypeAssignments)
     const bestLeaderboardBadge = selectBestBadge(leaderboardBadgesByPlayerId.get(player.id) ?? [])
-    // TODO: Re-enable delete functionality when account system is stable
-    // const { deletePlayer } = usePlayers()
+    const { deletePlayer } = usePlayers()
 
-    // const handleDelete = async () => {
-    //   if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
-    //     try {
-    //       await adminApi.deletePlayer(player.id)
-    //       deletePlayer(player.id)
-    //       toast.success('Player deleted successfully')
-    //     } catch (error) {
-    //       console.error('Error deleting player:', error)
-    //       toast.error('Failed to delete player')
-    //     }
-    //   }
-    // }
+    const handleDelete = () => {
+      if (confirm(`Are you sure you want to delete ${formatPlayerName(player.name)}?`)) {
+        setPlayerToDelete(player)
+        setShowPasswordDialog(true)
+        setDeletePassword("")
+      }
+    }
 
     return (
       <Card
@@ -607,7 +616,6 @@ export default function PlayersPage() {
                   <Button size="sm" asChild>
                     <Link href={`/compare?playerId=${player.id}`}>Compare</Link>
                   </Button>
-                  {/* TODO: Re-enable delete button when account system is stable
                   <Button
                     size="sm"
                     className="bg-red-500 hover:bg-red-600 text-white"
@@ -616,7 +624,6 @@ export default function PlayersPage() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  */}
                 </div>
               </div>
             </div>
@@ -885,6 +892,37 @@ export default function PlayersPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Password Dialog for Delete */}
+        <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enter Password to Delete Player</DialogTitle>
+              <DialogDescription>
+                Please enter the password to delete {playerToDelete ? formatPlayerName(playerToDelete.name) : 'this player'}.
+              </DialogDescription>
+            </DialogHeader>
+            <Input
+              type="password"
+              placeholder="Enter password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handlePasswordSubmit()
+                }
+              }}
+            />
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowPasswordDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handlePasswordSubmit}>
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
