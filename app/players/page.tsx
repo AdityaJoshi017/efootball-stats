@@ -8,6 +8,10 @@ const getSortValue = (player: OldPlayer, sortBy: SortKey) => {
     return (player as any).ovrRating || 0
   }
 
+  if (sortBy === "radarRating") {
+    return calculateRadarRating(player)
+  }
+
   return getStatValue(player, sortBy)
 }
 import { useState, useMemo, useEffect } from "react"
@@ -59,6 +63,7 @@ type SortKey =
   | "age"
   |"overall"
   |"ovrRating"
+  |"radarRating"
 
 // Helper to get stats from transformed Player (OldPlayer format)
 const getStatValue = (player: OldPlayer, key: string) => {
@@ -79,6 +84,64 @@ const formatPlayerName = (name: string) => {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ")
 }
+
+// Enhanced efficiency rating with weighted metrics (from compare page)
+const calculateEfficiencyRating = (player: OldPlayer) => {
+  const weights = {
+    attacking: 0.35,
+    playmaking: 0.3,
+    consistency: 0.15,
+    experience: 0.1,
+    conversion: 0.1,
+  }
+
+  const attacking = Math.min(100, (player.goal / Math.max(1, player.apps)) * 20 + (player.goal / 10))
+  const playmaking = Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8))
+  const consistency = Math.min(100, (player.apps / 50) * 100)
+  const experience = Math.min(100, (player.age / 35) * 100)
+  const conversion = Math.min(100, (player.goal / Math.max(1, player.goal + player.assists)) * 100)
+
+  const efficiency = (attacking * weights.attacking + 
+                      playmaking * weights.playmaking + 
+                      consistency * weights.consistency + 
+                      experience * weights.experience + 
+                      conversion * weights.conversion)
+
+  const overall = (attacking + playmaking + consistency + experience + conversion) / 5
+
+  return { efficiency, overall }
+}
+
+// Performance category calculation (from compare page)
+const getPerformanceCategory = (player: OldPlayer) => {
+  const shotsPerMatch = 1 // Default since we don't have shots data
+  const conversionRate = shotsPerMatch > 0 ? player.goal / (shotsPerMatch * player.apps) : 0
+
+  return {
+    attacking: Math.min(100, (player.goal / Math.max(1, player.apps)) * 20 + (player.goal / 10)),
+    playing: Math.min(100, (player.assists / Math.max(1, player.apps)) * 15 + (player.assists / 8)),
+    consistency: Math.min(100, (player.apps / 50) * 100),
+    experience: Math.min(100, (player.age / 35) * 100),
+    conversion: Math.min(100, conversionRate * 100),
+  }
+}
+
+// Calculate radar rating (from compare page)
+const calculateRadarRating = (player: OldPlayer) => {
+  const categories = getPerformanceCategory(player)
+  const efficiencyRating = calculateEfficiencyRating(player)
+
+  const radarData = [
+    { value: Math.min(categories.attacking, 100) },
+    { value: Math.min(categories.playing, 100) },
+    { value: Math.min(efficiencyRating.efficiency, 100) },
+    { value: Math.min(categories.consistency || 0, 100) },
+    { value: Math.min(categories.experience, 100) },
+    { value: Math.min(efficiencyRating.overall, 100) },
+  ]
+
+  return radarData.reduce((sum, item) => sum + item.value, 0) / radarData.length
+}
 //overall
 
 export default function PlayersPage() {
@@ -98,6 +161,7 @@ export default function PlayersPage() {
   const [ageRange, setAgeRange] = useState([16, 50])
   const [goalsRange, setGoalsRange] = useState([0, 2000])
   const [assistsRange, setAssistsRange] = useState([0, 1000])
+  const [gPlusARange, setGPlusARange] = useState([0, 3000])
   // const [sortBy, setSortBy] = useState<keyof Player>("name") //change
   const [sortBy, setSortBy] = useState<SortKey>("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
@@ -151,7 +215,9 @@ export default function PlayersPage() {
       player.goal >= goalsRange[0] &&
       player.goal <= goalsRange[1] &&
       player.assists >= assistsRange[0] &&
-      player.assists <= assistsRange[1]
+      player.assists <= assistsRange[1] &&
+      player.gPlusA >= gPlusARange[0] &&
+      player.gPlusA <= gPlusARange[1]
     )
   })
 
@@ -184,6 +250,7 @@ export default function PlayersPage() {
   ageRange,
   goalsRange,
   assistsRange,
+  gPlusARange,
   sortBy,
   sortOrder,
   goatPlayer,
@@ -199,6 +266,7 @@ export default function PlayersPage() {
     setAgeRange([16, 50])
     setGoalsRange([0, 2000])
     setAssistsRange([0, 1000])
+    setGPlusARange([0, 3000])
     setSortBy("name")
     setSortOrder("asc")
   }
@@ -212,6 +280,7 @@ export default function PlayersPage() {
     ageRange[0] !== 16 || ageRange[1] !== 50,
     goalsRange[0] !== 0 || goalsRange[1] !== 2000,
     assistsRange[0] !== 0 || assistsRange[1] !== 1000,
+    gPlusARange[0] !== 0 || gPlusARange[1] !== 3000,
   ].filter(Boolean).length
 
   const PlayerCard = ({ player }: { player: OldPlayer }) => {
@@ -612,7 +681,9 @@ export default function PlayersPage() {
                     <SelectItem value="apps">Appearances</SelectItem>
                     <SelectItem value="age">Age</SelectItem>
                     <SelectItem value="ovrRating">In-Game OVR</SelectItem>
+                    <SelectItem value="radarRating">Radar Rating</SelectItem>
                     <SelectItem value="overall">OVR</SelectItem>
+                    <SelectItem value="overall">Radar Rating</SelectItem>
 
 
                     {/* <SelectItem value="overall">OVR</SelectItem> */}
@@ -745,6 +816,20 @@ export default function PlayersPage() {
                     min={0}
                     max={1000}
                     step={5}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    G+A Range: {gPlusARange[0]} - {gPlusARange[1]}
+                  </label>
+                  <Slider
+                    value={gPlusARange}
+                    onValueChange={setGPlusARange}
+                    min={0}
+                    max={3000}
+                    step={10}
                     className="w-full"
                   />
                 </div>
