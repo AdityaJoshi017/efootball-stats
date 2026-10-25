@@ -207,6 +207,125 @@ Match.init(
   }
 );
 
+// PlayerStatUpdate model for tracking stat changes
+export class PlayerStatUpdate extends Model {
+  public id!: number;
+  public playerId!: number;
+  public statType!: 'goals' | 'assists' | 'apps';
+  public oldValue!: number;
+  public newValue!: number;
+  public updatedBy!: string;
+  public updateSource!: 'manual' | 'bulk_script' | 'form';
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+PlayerStatUpdate.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    playerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Player,
+        key: 'id',
+      },
+    },
+    statType: {
+      type: DataTypes.ENUM('goals', 'assists', 'apps'),
+      allowNull: false,
+    },
+    oldValue: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    newValue: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    updatedBy: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'system',
+    },
+    updateSource: {
+      type: DataTypes.ENUM('manual', 'bulk_script', 'form'),
+      allowNull: false,
+      defaultValue: 'manual',
+    },
+  },
+  {
+    sequelize,
+    modelName: 'PlayerStatUpdate',
+    tableName: 'player_stat_updates',
+  }
+);
+
+// PlayerStatSnapshot model for storing stat snapshots
+export class PlayerStatSnapshot extends Model {
+  public id!: number;
+  public playerId!: number;
+  public snapshotDate!: Date;
+  public goals!: number;
+  public assists!: number;
+  public apps!: number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+PlayerStatSnapshot.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    playerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Player,
+        key: 'id',
+      },
+    },
+    snapshotDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    goals: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    assists: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    apps: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+  },
+  {
+    sequelize,
+    modelName: 'PlayerStatSnapshot',
+    tableName: 'player_stat_snapshots',
+  }
+);
+
 // Define relationships
 Player.hasMany(Match, { foreignKey: 'playerId', as: 'matches' });
 Match.belongsTo(Player, { foreignKey: 'playerId', as: 'player' });
+
+Player.hasMany(PlayerStatUpdate, { foreignKey: 'playerId', as: 'statUpdates' });
+PlayerStatUpdate.belongsTo(Player, { foreignKey: 'playerId', as: 'player' });
+
+Player.hasMany(PlayerStatSnapshot, { foreignKey: 'playerId', as: 'statSnapshots' });
+PlayerStatSnapshot.belongsTo(Player, { foreignKey: 'playerId', as: 'player' });

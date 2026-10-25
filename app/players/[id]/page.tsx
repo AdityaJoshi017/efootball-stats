@@ -8,13 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
-import { Share2, Heart, BarChart3, Trophy, Target, Users, Calendar, MapPin, ArrowRightLeft } from "lucide-react"
+import { Share2, Heart, BarChart3, Trophy, Target, Users, Calendar, MapPin, ArrowRightLeft, Activity } from "lucide-react"
 import { usePlayer } from "@/lib/use-player"
 import { usePlayers } from "@/lib/use-players"
 import { type Player as OldPlayer } from "@/lib/players-data"
 import { useRouter } from "next/navigation"
 import { buildLeaderboardBadges } from "@/lib/leaderboard-badges"
 import { isFavouritePlayer, toggleFavouritePlayer } from "@/lib/favourites"
+import { api, StatUpdate, SnapshotComparison } from "@/lib/api"
+import { StatProgressChart } from "@/components/stats-history/StatProgressChart"
+import { ComparisonCard } from "@/components/stats-history/ComparisonCard"
 
 const NEXT_PUBLIC_IMAGE_URL = 'http://localhost:8000'
 
@@ -42,6 +45,9 @@ export default function PlayerDetailPage() {
   const { player: apiPlayerData, isLoading } = usePlayer(playerId)
   const { players: allPlayers } = usePlayers() // Only needed for similar players/leaderboard
   const [isFavorite, setIsFavorite] = useState(false)
+  const [statUpdates, setStatUpdates] = useState<StatUpdate[]>([])
+  const [snapshotComparison, setSnapshotComparison] = useState<SnapshotComparison | null>(null)
+  const [loadingStats, setLoadingStats] = useState(false)
 
   // Transform API data to old format for compatibility with existing functions
   const playerData = useMemo(() => {
@@ -56,7 +62,24 @@ export default function PlayerDetailPage() {
 
   useEffect(() => {
     setIsFavorite(isFavouritePlayer(playerId))
+    loadStatHistory()
   }, [playerId])
+
+  const loadStatHistory = async () => {
+    try {
+      setLoadingStats(true)
+      const [updates, comparison] = await Promise.all([
+        api.getPlayerStatUpdates(playerId, { limit: 20 }),
+        api.compareSnapshot(playerId)
+      ])
+      setStatUpdates(updates)
+      setSnapshotComparison(comparison)
+    } catch (error) {
+      console.error("Error loading stat history:", error)
+    } finally {
+      setLoadingStats(false)
+    }
+  }
 
   if (!playerData) {
     return (
@@ -246,30 +269,37 @@ export default function PlayerDetailPage() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 gap-1 sm:gap-2">
-            <TabsTrigger 
+          <TabsList className="grid w-full grid-cols-5 gap-1 sm:gap-2">
+            <TabsTrigger
               value="overview"
               className="text-xs sm:text-sm px-1 py-1 sm:px-2 sm:py-1.5"
             >
               Overview
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="performance"
               className="text-xs sm:text-sm px-1 py-1 sm:px-2 sm:py-1.5"
             >
               Performance
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="rankings"
               className="text-xs sm:text-sm px-1 py-1 sm:px-2 sm:py-1.5"
             >
               Rankings
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="similar"
               className="text-xs sm:text-sm px-1 py-1 sm:px-2 sm:py-1.5 truncate"
             >
               Similar
+            </TabsTrigger>
+            <TabsTrigger
+              value="history"
+              className="text-xs sm:text-sm px-1 py-1 sm:px-2 sm:py-1.5 truncate"
+            >
+              <Activity className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              History
             </TabsTrigger>
           </TabsList>
 
@@ -536,6 +566,57 @@ export default function PlayerDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              {/* Snapshot Comparison */}
+              {snapshotComparison && (
+                <ComparisonCard
+                  comparison={snapshotComparison}
+                  playerName={playerData.name}
+                />
+              )}
+
+              {/* Stat Progress Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="w-5 h-5" />
+                    Stat Progress Chart
+                  </CardTitle>
+                  <CardDescription>
+                    Recent stat updates over time
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loadingStats ? (
+                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      Loading...
+                    </div>
+                  ) : statUpdates.length === 0 ? (
+                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      No stat updates recorded yet
+                    </div>
+                  ) : (
+                    <StatProgressChart updates={statUpdates} statType="all" />
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* View Full History Button */}
+              <Card>
+                <CardContent className="p-6">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => router.push(`/stats-history?playerId=${playerId}`)}
+                  >
+                    View Full Update History
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>

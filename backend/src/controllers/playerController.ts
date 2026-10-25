@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Player, Match, generateCardSlug, generateDisplayName } from '../models';
 import { computeStatsFromMatches, computeStatsFromAggregates } from '../utils/stats';
+import { autoLogStatUpdate } from './updateController';
+import { autoCreateSnapshot } from './snapshotController';
 
 // List all players with computed stats
 export async function listPlayers(req: Request, res: Response) {
@@ -157,7 +159,15 @@ export async function updatePlayer(req: Request, res: Response) {
     }
 
     const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
-    
+
+    // Store old values for logging
+    const oldApps = player.apps;
+    const oldGoal = player.goal;
+    const oldAssists = player.assists;
+
+    // Create snapshot before update
+    await autoCreateSnapshot(player.id);
+
     // Handle image: use provided URL, existing image, or placeholder
     let image;
     if (imageUrl !== undefined) {
@@ -205,6 +215,21 @@ export async function updatePlayer(req: Request, res: Response) {
       image,
     });
 
+    // Log stat changes if they changed
+    const newApps = player.apps;
+    const newGoal = player.goal;
+    const newAssists = player.assists;
+
+    if (newApps !== oldApps) {
+      await autoLogStatUpdate(player.id, 'apps', oldApps, newApps, 'admin', 'form');
+    }
+    if (newGoal !== oldGoal) {
+      await autoLogStatUpdate(player.id, 'goals', oldGoal, newGoal, 'admin', 'form');
+    }
+    if (newAssists !== oldAssists) {
+      await autoLogStatUpdate(player.id, 'assists', oldAssists, newAssists, 'admin', 'form');
+    }
+
     // Fetch fresh data from database to ensure we get updated values
     const updatedPlayer = await Player.findByPk(req.params.id);
     if (!updatedPlayer) {
@@ -213,7 +238,7 @@ export async function updatePlayer(req: Request, res: Response) {
 
     const stats = computeStatsFromAggregates(updatedPlayer);
     const playerData = updatedPlayer.toJSON();
-    
+
     // Debug logging to check updated values
     console.log('Updated player data:', {
       apps: playerData.apps,
@@ -221,7 +246,7 @@ export async function updatePlayer(req: Request, res: Response) {
       assists: playerData.assists,
       inputValues: { apps, goal, assists }
     });
-    
+
     // If image is a relative path, convert to full URL using frontend URL
     let fullImageUrl = playerData.image;
     if (fullImageUrl && fullImageUrl.startsWith('/') && !fullImageUrl.startsWith('/uploads/')) {

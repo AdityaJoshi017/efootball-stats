@@ -5,6 +5,8 @@ import { connectDB, sequelize } from './db';
 import { requireAdmin } from './middleware/auth';
 import * as playerController from './controllers/playerController';
 import * as matchController from './controllers/matchController';
+import * as updateController from './controllers/updateController';
+import * as snapshotController from './controllers/snapshotController';
 
 dotenv.config();
 
@@ -44,6 +46,16 @@ app.get('/test', (req, res) => {
 app.get('/api/players', playerController.listPlayers);
 app.get('/api/players/:id', playerController.getPlayer);
 app.get('/api/players/:id/matches', matchController.getPlayerMatches);
+
+// Stat update routes
+app.get('/api/stat-updates', updateController.getAllStatUpdates);
+app.get('/api/stat-updates/:playerId', updateController.getPlayerStatUpdates);
+app.post('/api/stat-updates', updateController.logStatUpdate);
+
+// Snapshot routes
+app.post('/api/snapshots/:playerId', snapshotController.createSnapshot);
+app.get('/api/snapshots/:playerId', snapshotController.getPlayerSnapshots);
+app.get('/api/snapshots/:playerId/compare', snapshotController.compareSnapshot);
 
 // Admin-protected routes (using image URLs instead of file uploads)
 app.post('/api/players', requireAdmin, playerController.createPlayer);

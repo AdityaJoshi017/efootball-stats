@@ -81,19 +81,113 @@ export interface Match {
   updatedAt: string;
 }
 
+export interface StatUpdate {
+  id: number;
+  playerId: number;
+  statType: 'goals' | 'assists' | 'apps';
+  oldValue: number;
+  newValue: number;
+  change: number;
+  percentChange: number;
+  updatedBy: string;
+  updateSource: 'manual' | 'bulk_script' | 'form';
+  createdAt: string;
+  updatedAt: string;
+  player?: {
+    id: number;
+    name: string;
+    team: string;
+  };
+}
+
+export interface StatSnapshot {
+  id: number;
+  playerId: number;
+  snapshotDate: string;
+  goals: number;
+  assists: number;
+  apps: number;
+  createdAt: string;
+  updatedAt: string;
+  player?: {
+    id: number;
+    name: string;
+    team: string;
+  };
+}
+
+export interface SnapshotComparison {
+  hasPreviousSnapshot: boolean;
+  current: {
+    goals: number;
+    assists: number;
+    apps: number;
+  };
+  previous?: {
+    goals: number;
+    assists: number;
+    apps: number;
+  };
+  changes?: {
+    goals: number;
+    assists: number;
+    apps: number;
+  };
+  percentChanges?: {
+    goals: number;
+    assists: number;
+    apps: number;
+  };
+  lastSnapshotDate?: string;
+  message?: string;
+}
+
 // Public API functions
 export const api = {
   // Get all players
   getPlayers: (): Promise<PlayerWithStats[]> => apiCall('/api/players'),
-  
+
   // Get single player
-  getPlayer: (id: number): Promise<{ player: Player; matches: Match[]; stats: PlayerStats }> => 
+  getPlayer: (id: number): Promise<{ player: Player; matches: Match[]; stats: PlayerStats }> =>
     apiCall(`/api/players/${id}`),
-  
+
   // Get player matches
-  getPlayerMatches: (id: number): Promise<Match[]> => 
+  getPlayerMatches: (id: number): Promise<Match[]> =>
     apiCall(`/api/players/${id}/matches`),
-  
+
+  // Get all stat updates
+  getAllStatUpdates: (params?: {
+    playerId?: number;
+    statType?: string;
+    updateSource?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<StatUpdate[]> => {
+    const queryParams = new URLSearchParams(params as any).toString();
+    return apiCall(`/api/stat-updates${queryParams ? `?${queryParams}` : ''}`);
+  },
+
+  // Get stat updates for a specific player
+  getPlayerStatUpdates: (playerId: number, params?: {
+    statType?: string;
+    limit?: number;
+  }): Promise<StatUpdate[]> => {
+    const queryParams = new URLSearchParams(params as any).toString();
+    return apiCall(`/api/stat-updates/${playerId}${queryParams ? `?${queryParams}` : ''}`);
+  },
+
+  // Get snapshots for a player
+  getPlayerSnapshots: (playerId: number, params?: {
+    limit?: number;
+  }): Promise<StatSnapshot[]> => {
+    const queryParams = new URLSearchParams(params as any).toString();
+    return apiCall(`/api/snapshots/${playerId}${queryParams ? `?${queryParams}` : ''}`);
+  },
+
+  // Compare current stats vs previous snapshot
+  compareSnapshot: (playerId: number): Promise<SnapshotComparison> =>
+    apiCall(`/api/snapshots/${playerId}/compare`),
+
   // Health check
   healthCheck: () => apiCall('/health'),
 };
@@ -206,8 +300,28 @@ export const adminApi = {
     }),
   
   // Delete match
-  deleteMatch: (matchId: number) => 
+  deleteMatch: (matchId: number) =>
     adminApiCall(`/api/matches/${matchId}`, {
       method: 'DELETE',
+    }),
+
+  // Create snapshot for a player
+  createSnapshot: (playerId: number) =>
+    adminApiCall(`/api/snapshots/${playerId}`, {
+      method: 'POST',
+    }),
+
+  // Log a stat update
+  logStatUpdate: (data: {
+    playerId: number;
+    statType: 'goals' | 'assists' | 'apps';
+    oldValue: number;
+    newValue: number;
+    updatedBy?: string;
+    updateSource?: 'manual' | 'bulk_script' | 'form';
+  }) =>
+    adminApiCall('/api/stat-updates', {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
 };
