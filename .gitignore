@@ -11,3 +11,4 @@ out/
 
 # misc
 .vscode/
+backend/dist/
