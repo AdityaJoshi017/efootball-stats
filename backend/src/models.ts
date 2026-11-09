@@ -262,10 +262,14 @@ PlayerStatUpdate.init(
     sequelize,
     modelName: 'PlayerStatUpdate',
     tableName: 'player_stat_updates',
+    indexes: [
+      { fields: ['playerId', 'createdAt'] },
+    ],
   }
 );
 
 // PlayerStatSnapshot model for storing stat snapshots
+// Each row is a full point-in-time record of goals/assists/apps after an update event
 export class PlayerStatSnapshot extends Model {
   public id!: number;
   public playerId!: number;
@@ -273,6 +277,9 @@ export class PlayerStatSnapshot extends Model {
   public goals!: number;
   public assists!: number;
   public apps!: number;
+  public ovr?: number | null;
+  public updatedBy!: string;
+  public updateSource!: 'manual' | 'bulk_script' | 'form';
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -312,11 +319,28 @@ PlayerStatSnapshot.init(
       allowNull: false,
       defaultValue: 0,
     },
+    ovr: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    updatedBy: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'system',
+    },
+    updateSource: {
+      type: DataTypes.ENUM('manual', 'bulk_script', 'form'),
+      allowNull: false,
+      defaultValue: 'manual',
+    },
   },
   {
     sequelize,
     modelName: 'PlayerStatSnapshot',
     tableName: 'player_stat_snapshots',
+    indexes: [
+      { fields: ['playerId', 'snapshotDate'] },
+    ],
   }
 );
 

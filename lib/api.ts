@@ -116,6 +116,44 @@ export interface StatSnapshot {
   };
 }
 
+export interface StatsHistoryPoint {
+  date: string;
+  goals: number;
+  assists: number;
+  apps: number;
+  gPlusA: number;
+  gPm: number;
+  aPm: number;
+  gAPm: number;
+  ovr?: number | null;
+  updatedBy: string;
+  updateSource: string;
+}
+
+export interface StatsHistoryResponse {
+  playerId: number;
+  points: StatsHistoryPoint[];
+}
+
+export interface StatsAsOfResult {
+  hasData: boolean;
+  source?: 'snapshot' | 'current';
+  asOf?: string;
+  snapshotDate?: string;
+  goals?: number;
+  assists?: number;
+  apps?: number;
+  gPlusA?: number;
+  gPm?: number;
+  aPm?: number;
+  gAPm?: number;
+  ovr?: number | null;
+  updatedBy?: string;
+  updateSource?: string;
+  message?: string;
+  earliestSnapshotDate?: string;
+}
+
 export interface SnapshotComparison {
   hasPreviousSnapshot: boolean;
   current: {
@@ -184,6 +222,21 @@ export const api = {
     return apiCall(`/api/snapshots/${playerId}${queryParams ? `?${queryParams}` : ''}`);
   },
 
+  // Get stat history series (totals + per-app ratios) for a player
+  getPlayerStatsHistory: (playerId: number, params?: {
+    from?: string;
+    to?: string;
+  }): Promise<StatsHistoryResponse> => {
+    const queryParams = new URLSearchParams(params as any).toString();
+    return apiCall(`/api/players/${playerId}/stats-history${queryParams ? `?${queryParams}` : ''}`);
+  },
+
+  // Get a player's stats as of a specific date
+  getPlayerStatsAsOf: (playerId: number, date?: string): Promise<StatsAsOfResult> => {
+    const queryParams = date ? `?date=${encodeURIComponent(date)}` : '';
+    return apiCall(`/api/players/${playerId}/stats-as-of${queryParams}`);
+  },
+
   // Compare current stats vs previous snapshot
   compareSnapshot: (playerId: number): Promise<SnapshotComparison> =>
     apiCall(`/api/snapshots/${playerId}/compare`),
@@ -237,6 +290,7 @@ export const adminApi = {
     apps?: number;
     goal?: number;
     assists?: number;
+    ovrRating?: number | null;
     imageUrl?: string;
   }) => {
     // Transform imageUrl to image for backend compatibility

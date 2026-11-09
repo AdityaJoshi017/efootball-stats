@@ -14,8 +14,8 @@ const startServer = async () => {
     // Connect to database
     await connectDB();
     
-    // Sync database models (create tables if they don't exist)
-    await sequelize.sync();
+    // Sync database models (create tables / add missing columns)
+    await sequelize.sync({ alter: true });
     console.log('Database synchronized successfully.');
 
     // Create uploads directory if it doesn't exist

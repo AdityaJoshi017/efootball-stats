@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { Player, Match, generateCardSlug, generateDisplayName } from '../models';
 import { computeStatsFromMatches, computeStatsFromAggregates } from '../utils/stats';
 import { autoLogStatUpdate } from './updateController';
-import { autoCreateSnapshot } from './snapshotController';
+import { recordStatSnapshot } from './snapshotController';
 
 // List all players with computed stats
 export async function listPlayers(req: Request, res: Response) {
@@ -127,6 +127,9 @@ export async function createPlayer(req: Request, res: Response) {
       await player.update({ image: placeholderUrl });
     }
 
+    // Record baseline snapshot so stat history starts at player creation
+    await recordStatSnapshot(player.id, player.goal, player.assists, player.apps, 'admin', 'form', player.ovr_rating);
+
     const stats = computeStatsFromAggregates(player);
     const playerData = player.toJSON();
     
@@ -158,15 +161,12 @@ export async function updatePlayer(req: Request, res: Response) {
       return res.status(404).json({ error: 'Player not found' });
     }
 
-    const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
+    const { name, team, position, age, cardType, apps, goal, assists, imageUrl, ovrRating } = req.body;
 
     // Store old values for logging
     const oldApps = player.apps;
     const oldGoal = player.goal;
     const oldAssists = player.assists;
-
-    // Create snapshot before update
-    await autoCreateSnapshot(player.id);
 
     // Handle image: use provided URL, existing image, or placeholder
     let image;
@@ -212,6 +212,7 @@ export async function updatePlayer(req: Request, res: Response) {
       apps: apps !== undefined ? parseInt(apps) : player.apps,
       goal: goal !== undefined ? parseInt(goal) : player.goal,
       assists: assists !== undefined ? parseInt(assists) : player.assists,
+      ovr_rating: ovrRating !== undefined ? (ovrRating === null ? null : parseInt(ovrRating)) : player.ovr_rating,
       image,
     });
 
@@ -229,6 +230,9 @@ export async function updatePlayer(req: Request, res: Response) {
     if (newAssists !== oldAssists) {
       await autoLogStatUpdate(player.id, 'assists', oldAssists, newAssists, 'admin', 'form');
     }
+
+    // Record a full point-in-time snapshot (all 3 stats + OVR) after the update
+    await recordStatSnapshot(player.id, newGoal, newAssists, newApps, 'admin', 'form', player.ovr_rating);
 
     // Fetch fresh data from database to ensure we get updated values
     const updatedPlayer = await Player.findByPk(req.params.id);

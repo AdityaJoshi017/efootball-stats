@@ -15,8 +15,13 @@ import { type Player as OldPlayer } from "@/lib/players-data"
 import { useRouter } from "next/navigation"
 import { buildLeaderboardBadges } from "@/lib/leaderboard-badges"
 import { isFavouritePlayer, toggleFavouritePlayer } from "@/lib/favourites"
-import { api, StatUpdate, SnapshotComparison } from "@/lib/api"
+import { api, StatUpdate, SnapshotComparison, StatsHistoryPoint, StatsAsOfResult } from "@/lib/api"
 import { StatProgressChart } from "@/components/stats-history/StatProgressChart"
+import { StatsHistoryChart } from "@/components/stats-history/StatsHistoryChart"
+import { PlayerMilestoneTimeline } from "@/components/stats-history/PlayerMilestoneTimeline"
+import { ActivityHeatmap } from "@/components/stats-history/ActivityHeatmap"
+import { StatsComparisonCard } from "@/components/stats-history/StatsComparisonCard"
+import { DateRangePresets, DateRange } from "@/components/stats-history/DateRangePresets"
 import { ComparisonCard } from "@/components/stats-history/ComparisonCard"
 
 const NEXT_PUBLIC_IMAGE_URL = 'http://localhost:8000'
@@ -47,6 +52,11 @@ export default function PlayerDetailPage() {
   const [isFavorite, setIsFavorite] = useState(false)
   const [statUpdates, setStatUpdates] = useState<StatUpdate[]>([])
   const [snapshotComparison, setSnapshotComparison] = useState<SnapshotComparison | null>(null)
+  const [statsHistory, setStatsHistory] = useState<StatsHistoryPoint[]>([])
+  const [asOfDate, setAsOfDate] = useState("")
+  const [asOfResult, setAsOfResult] = useState<StatsAsOfResult | null>(null)
+  const [dateRange, setDateRange] = useState<DateRange>({})
+  const [loadingAsOf, setLoadingAsOf] = useState(false)
   const [loadingStats, setLoadingStats] = useState(false)
 
   // Transform API data to old format for compatibility with existing functions
@@ -65,19 +75,49 @@ export default function PlayerDetailPage() {
     loadStatHistory()
   }, [playerId])
 
+  // Refetch stat history series when the date range changes
+  useEffect(() => {
+    const loadHistoryForRange = async () => {
+      try {
+        const history = await api.getPlayerStatsHistory(playerId, dateRange)
+        setStatsHistory(history.points)
+      } catch (error) {
+        console.error("Error loading stats history:", error)
+      }
+    }
+    loadHistoryForRange()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange])
+
   const loadStatHistory = async () => {
     try {
       setLoadingStats(true)
-      const [updates, comparison] = await Promise.all([
+      const [updates, comparison, history] = await Promise.all([
         api.getPlayerStatUpdates(playerId, { limit: 20 }),
-        api.compareSnapshot(playerId)
+        api.compareSnapshot(playerId),
+        api.getPlayerStatsHistory(playerId)
       ])
       setStatUpdates(updates)
       setSnapshotComparison(comparison)
+      setStatsHistory(history.points)
     } catch (error) {
       console.error("Error loading stat history:", error)
     } finally {
       setLoadingStats(false)
+    }
+  }
+
+  const lookupStatsAsOf = async () => {
+    if (!asOfDate) return
+    try {
+      setLoadingAsOf(true)
+      const result = await api.getPlayerStatsAsOf(playerId, asOfDate)
+      setAsOfResult(result)
+    } catch (error) {
+      console.error("Error loading stats as of date:", error)
+      setAsOfResult(null)
+    } finally {
+      setLoadingAsOf(false)
     }
   }
 
@@ -586,20 +626,131 @@ export default function PlayerDetailPage() {
                     Stat Progress Chart
                   </CardTitle>
                   <CardDescription>
-                    Recent stat updates over time
+                    Cumulative stats and per-app ratios over time
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                  <DateRangePresets value={dateRange} onChange={setDateRange} />
                   {loadingStats ? (
                     <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                       Loading...
                     </div>
+                  ) : statsHistory.length > 0 ? (
+                    <StatsHistoryChart points={statsHistory} />
                   ) : statUpdates.length === 0 ? (
                     <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                       No stat updates recorded yet
                     </div>
                   ) : (
                     <StatProgressChart updates={statUpdates} statType="all" />
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Milestones & Activity Heatmap */}
+              {statsHistory.length > 0 && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Trophy className="w-5 h-5" />
+                        Milestone Timeline
+                      </CardTitle>
+                      <CardDescription>
+                        Career milestones reached, in order
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <PlayerMilestoneTimeline points={statsHistory} />
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Activity className="w-5 h-5" />
+                        Activity Heatmap
+                      </CardTitle>
+                      <CardDescription>
+                        G+A gained per day over the last 18 weeks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ActivityHeatmap points={statsHistory} />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Compare two dates */}
+              <StatsComparisonCard playerId={playerId} />
+
+              {/* Stats as of date */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Stats As Of Date
+                  </CardTitle>
+                  <CardDescription>
+                    Look up this player&apos;s goals, assists, apps and per-app ratios on any date
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2">
+                    <input
+                      type="date"
+                      value={asOfDate}
+                      onChange={(e) => setAsOfDate(e.target.value)}
+                      className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                    <Button onClick={lookupStatsAsOf} disabled={!asOfDate || loadingAsOf}>
+                      {loadingAsOf ? "Loading..." : "Look Up"}
+                    </Button>
+                  </div>
+
+                  {asOfResult && (
+                    asOfResult.hasData ? (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-2xl font-bold text-green-600">{asOfResult.goals}</div>
+                          <div className="text-xs text-muted-foreground">Goals</div>
+                        </div>
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-2xl font-bold text-blue-600">{asOfResult.assists}</div>
+                          <div className="text-xs text-muted-foreground">Assists</div>
+                        </div>
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-2xl font-bold text-purple-600">{asOfResult.apps}</div>
+                          <div className="text-xs text-muted-foreground">Apps</div>
+                        </div>
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-2xl font-bold">{asOfResult.gAPm?.toFixed(3)}</div>
+                          <div className="text-xs text-muted-foreground">G+A/App</div>
+                        </div>
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-lg font-semibold">{asOfResult.gPm?.toFixed(3)}</div>
+                          <div className="text-xs text-muted-foreground">G/App</div>
+                        </div>
+                        <div className="rounded-lg border p-3 text-center">
+                          <div className="text-lg font-semibold">{asOfResult.aPm?.toFixed(3)}</div>
+                          <div className="text-xs text-muted-foreground">A/App</div>
+                        </div>
+                        <div className="col-span-2 rounded-lg border p-3 text-center text-sm text-muted-foreground">
+                          {asOfResult.source === "snapshot" && asOfResult.snapshotDate
+                            ? `Snapshot from ${new Date(asOfResult.snapshotDate).toLocaleDateString()}`
+                            : asOfResult.source === "current"
+                              ? "Current stats (no snapshots recorded)"
+                              : ""}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {asOfResult.message}
+                        {asOfResult.earliestSnapshotDate &&
+                          ` Earliest record: ${new Date(asOfResult.earliestSnapshotDate).toLocaleDateString()}`}
+                      </p>
+                    )
                   )}
                 </CardContent>
               </Card>

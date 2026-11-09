@@ -1,0 +1,500 @@
+[
+  {
+    "id": 1,
+    "name": "lionel messi",
+    "age": 34,
+    "ovrRating": 106
+  },
+  {
+    "id": 2,
+    "name": "lionel messi",
+    "age": 26,
+    "ovrRating": 103
+  },
+  {
+    "id": 3,
+    "name": "lionel messi",
+    "age": 19,
+    "ovrRating": 105
+  },
+  {
+    "id": 4,
+    "name": "lionel messi",
+    "age": 35,
+    "ovrRating": 104
+  },
+  {
+    "id": 5,
+    "name": "antoine griezmann",
+    "age": 27,
+    "ovrRating": 105
+  },
+  {
+    "id": 6,
+    "name": "gabriel batistuta",
+    "age": 26,
+    "ovrRating": 105
+  },
+  {
+    "id": 7,
+    "name": "david villa",
+    "age": 25,
+    "ovrRating": 104
+  },
+  {
+    "id": 8,
+    "name": "neymar jr",
+    "age": 22,
+    "ovrRating": 103
+  },
+  {
+    "id": 9,
+    "name": "guti",
+    "age": 26,
+    "ovrRating": 102
+  },
+  {
+    "id": 10,
+    "name": "a. del piero",
+    "age": 21,
+    "ovrRating": 101
+  },
+  {
+    "id": 11,
+    "name": "fernando torres",
+    "age": 29,
+    "ovrRating": 102
+  },
+  {
+    "id": 12,
+    "name": "johan cruyff",
+    "age": 28,
+    "ovrRating": 102
+  },
+  {
+    "id": 13,
+    "name": "desire doue",
+    "age": 19,
+    "ovrRating": 105
+  },
+  {
+    "id": 14,
+    "name": "viktor gyokeres",
+    "age": 26,
+    "ovrRating": 104
+  },
+  {
+    "id": 15,
+    "name": "jude bellingham",
+    "age": 20,
+    "ovrRating": 102
+  },
+  {
+    "id": 16,
+    "name": "mo salah",
+    "age": 29,
+    "ovrRating": 101
+  },
+  {
+    "id": 17,
+    "name": "omar marmoush",
+    "age": 25,
+    "ovrRating": 103
+  },
+  {
+    "id": 18,
+    "name": "kylian mbappe",
+    "age": 25,
+    "ovrRating": 101
+  },
+  {
+    "id": 19,
+    "name": "kylian mbappe",
+    "age": 24,
+    "ovrRating": 102
+  },
+  {
+    "id": 20,
+    "name": "kylian mbappe",
+    "age": 24,
+    "ovrRating": 101
+  },
+  {
+    "id": 21,
+    "name": "kylian mbappe",
+    "age": 25,
+    "ovrRating": 101
+  },
+  {
+    "id": 22,
+    "name": "kevin de bruyne",
+    "age": 32,
+    "ovrRating": 101
+  },
+  {
+    "id": 23,
+    "name": "erling haaland",
+    "age": 24,
+    "ovrRating": 100
+  },
+  {
+    "id": 24,
+    "name": "vinicius jr",
+    "age": 24,
+    "ovrRating": 101
+  },
+  {
+    "id": 25,
+    "name": "mo salah",
+    "age": 29,
+    "ovrRating": 101
+  },
+  {
+    "id": 26,
+    "name": "neymar jr",
+    "age": 30,
+    "ovrRating": 100
+  },
+  {
+    "id": 27,
+    "name": "phil foden",
+    "age": 23,
+    "ovrRating": 101
+  },
+  {
+    "id": 28,
+    "name": "cristiano ronaldo",
+    "age": 38,
+    "ovrRating": 100
+  },
+  {
+    "id": 29,
+    "name": "robert lewandowski",
+    "age": 35,
+    "ovrRating": 100
+  },
+  {
+    "id": 30,
+    "name": "jude bellingham",
+    "age": 20,
+    "ovrRating": 100
+  },
+  {
+    "id": 31,
+    "name": "ciro immobile",
+    "age": 32,
+    "ovrRating": 100
+  },
+  {
+    "id": 32,
+    "name": "alphonso davies",
+    "age": 22,
+    "ovrRating": 99
+  },
+  {
+    "id": 33,
+    "name": "bernardo silva",
+    "age": 28,
+    "ovrRating": 100
+  },
+  {
+    "id": 34,
+    "name": "dusan vlahovic",
+    "age": 25,
+    "ovrRating": 100
+  },
+  {
+    "id": 35,
+    "name": "thomas muller",
+    "age": 33,
+    "ovrRating": 100
+  },
+  {
+    "id": 36,
+    "name": "mikel oyarzabal",
+    "age": 24,
+    "ovrRating": 100
+  },
+  {
+    "id": 37,
+    "name": "gaizka mendieta",
+    "age": 29,
+    "ovrRating": 101
+  },
+  {
+    "id": 38,
+    "name": "diego maradona",
+    "age": 23,
+    "ovrRating": 101
+  },
+  {
+    "id": 39,
+    "name": "dwight yorke",
+    "age": 29,
+    "ovrRating": 102
+  },
+  {
+    "id": 40,
+    "name": "neymar jr",
+    "age": 19,
+    "ovrRating": 101
+  },
+  {
+    "id": 41,
+    "name": "bukayo saka",
+    "age": 22,
+    "ovrRating": 103
+  },
+  {
+    "id": 42,
+    "name": "kevin de bruyne",
+    "age": 31,
+    "ovrRating": 100
+  },
+  {
+    "id": 43,
+    "name": "cristiano ronaldo",
+    "age": 37,
+    "ovrRating": 100
+  },
+  {
+    "id": 44,
+    "name": "erling haaland",
+    "age": 21,
+    "ovrRating": 100
+  },
+  {
+    "id": 45,
+    "name": "dejan kulusevski",
+    "age": 23,
+    "ovrRating": 100
+  },
+  {
+    "id": 46,
+    "name": "randal kolo muani",
+    "age": 25,
+    "ovrRating": 100
+  },
+  {
+    "id": 47,
+    "name": "neymar jr",
+    "age": 29,
+    "ovrRating": 99
+  },
+  {
+    "id": 48,
+    "name": "victor osimhen",
+    "age": 25,
+    "ovrRating": 99
+  },
+  {
+    "id": 49,
+    "name": "son heung min",
+    "age": 30,
+    "ovrRating": 99
+  },
+  {
+    "id": 50,
+    "name": "federico chiesa",
+    "age": 25,
+    "ovrRating": 99
+  },
+  {
+    "id": 51,
+    "name": "ruud van nistelrooy",
+    "age": 25,
+    "ovrRating": 103
+  },
+  {
+    "id": 52,
+    "name": "Steven Gerrard",
+    "age": 29,
+    "ovrRating": 105
+  },
+  {
+    "id": 53,
+    "name": "Earling Haaland",
+    "age": 25,
+    "ovrRating": 109
+  },
+  {
+    "id": 54,
+    "name": "Lamine yamal",
+    "age": 19,
+    "ovrRating": 103
+  },
+  {
+    "id": 55,
+    "name": "Belletti",
+    "age": 30,
+    "ovrRating": 103
+  },
+  {
+    "id": 56,
+    "name": "Park Ji-Sung",
+    "age": 28,
+    "ovrRating": 103
+  },
+  {
+    "id": 57,
+    "name": "Filippo Inzaghi",
+    "age": 26,
+    "ovrRating": 104
+  },
+  {
+    "id": 59,
+    "name": "Daniel Van Buyten",
+    "age": 32,
+    "ovrRating": 103
+  },
+  {
+    "id": 60,
+    "name": "Ronaldinho",
+    "age": 25,
+    "ovrRating": 103
+  },
+  {
+    "id": 61,
+    "name": "Michael Olise",
+    "age": 25,
+    "ovrRating": 102
+  },
+  {
+    "id": 62,
+    "name": "Darren Fletcher",
+    "age": 26,
+    "ovrRating": 101
+  },
+  {
+    "id": 63,
+    "name": "Pep Guardiola",
+    "age": 20,
+    "ovrRating": 104
+  },
+  {
+    "id": 64,
+    "name": "Iker Casillas",
+    "age": 29,
+    "ovrRating": 102
+  },
+  {
+    "id": 65,
+    "name": "Franz Beckenbauer",
+    "age": 29,
+    "ovrRating": 102
+  },
+  {
+    "id": 66,
+    "name": "Wayne Rooney",
+    "age": 19,
+    "ovrRating": 102
+  },
+  {
+    "id": 67,
+    "name": "Joao Cancelo",
+    "age": 32,
+    "ovrRating": 98
+  },
+  {
+    "id": 68,
+    "name": "A. Costacurta",
+    "age": 37,
+    "ovrRating": 101
+  },
+  {
+    "id": 69,
+    "name": "Pedri",
+    "age": 24,
+    "ovrRating": 100
+  },
+  {
+    "id": 70,
+    "name": "Ansu Fati",
+    "age": 20,
+    "ovrRating": 99
+  },
+  {
+    "id": 71,
+    "name": "David Beckham",
+    "age": 24,
+    "ovrRating": 98
+  },
+  {
+    "id": 72,
+    "name": "Jude Bellingham",
+    "age": 21,
+    "ovrRating": 103
+  },
+  {
+    "id": 73,
+    "name": "Rodrigo De Paul",
+    "age": 28,
+    "ovrRating": 99
+  },
+  {
+    "id": 74,
+    "name": "Inaki Williams",
+    "age": 28,
+    "ovrRating": 96
+  },
+  {
+    "id": 75,
+    "name": "Dani Olmo",
+    "age": 27,
+    "ovrRating": 103
+  },
+  {
+    "id": 76,
+    "name": "Cody Gakpo",
+    "age": 25,
+    "ovrRating": 100
+  },
+  {
+    "id": 77,
+    "name": "Matthijs de Ligt",
+    "age": 23,
+    "ovrRating": 100
+  },
+  {
+    "id": 78,
+    "name": "Antonio Rudiger",
+    "age": 28,
+    "ovrRating": 100
+  },
+  {
+    "id": 79,
+    "name": "Gabriel Jesus",
+    "age": 25,
+    "ovrRating": 100
+  },
+  {
+    "id": 80,
+    "name": "Darwin Nunez",
+    "age": 24,
+    "ovrRating": 100
+  },
+  {
+    "id": 81,
+    "name": "Nico Williams",
+    "age": 21,
+    "ovrRating": 100
+  },
+  {
+    "id": 82,
+    "name": "Frank Lampard",
+    "age": 26,
+    "ovrRating": 98
+  },
+  {
+    "id": 83,
+    "name": "Fabio Cannavaro",
+    "age": 33,
+    "ovrRating": 106
+  },
+  {
+    "id": 84,
+    "name": "Pep Guardiola",
+    "age": 20,
+    "ovrRating": 104
+  }
+]

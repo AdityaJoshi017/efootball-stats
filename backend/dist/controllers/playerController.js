@@ -79,7 +79,7 @@ async function getPlayer(req, res) {
 // Create player (admin only)
 async function createPlayer(req, res) {
     try {
-        const { name, team, position, age, cardType, apps, goal, assists, imageUrl } = req.body;
+        const { name, team, position, age, cardType, ovrRating, apps, goal, assists, imageUrl } = req.body;
         // If no image URL provided, use placeholder or Cloudinary
         let image = imageUrl || undefined;
         // Generate unique identifiers
@@ -93,6 +93,7 @@ async function createPlayer(req, res) {
             cardType,
             cardSlug,
             displayName,
+            ovr_rating: ovrRating ? parseInt(ovrRating) : null,
             apps: parseInt(apps) || 0,
             goal: parseInt(goal) || 0,
             assists: parseInt(assists) || 0,

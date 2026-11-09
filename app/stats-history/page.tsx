@@ -7,15 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Activity, TrendingUp, TrendingDown, Calendar, Filter, ArrowUpDown, LineChart } from "lucide-react"
-import { api, StatUpdate, Player, SnapshotComparison } from "@/lib/api"
+import { api, StatUpdate, Player, SnapshotComparison, StatsHistoryPoint } from "@/lib/api"
 import { usePlayers } from "@/lib/use-players"
 import { StatProgressChart } from "@/components/stats-history/StatProgressChart"
+import { StatsHistoryChart } from "@/components/stats-history/StatsHistoryChart"
+import { PlayerCombobox } from "@/components/stats-history/PlayerCombobox"
+import { DateRangePresets, DateRange } from "@/components/stats-history/DateRangePresets"
+import { ActivityHeatmap } from "@/components/stats-history/ActivityHeatmap"
+import { StatsComparisonCard } from "@/components/stats-history/StatsComparisonCard"
 import { ComparisonCard } from "@/components/stats-history/ComparisonCard"
 
 export default function StatsHistoryPage() {
   const { players } = usePlayers()
   const [statUpdates, setStatUpdates] = useState<StatUpdate[]>([])
   const [snapshotComparison, setSnapshotComparison] = useState<SnapshotComparison | null>(null)
+  const [statsHistoryPoints, setStatsHistoryPoints] = useState<StatsHistoryPoint[]>([])
+  const [dateRange, setDateRange] = useState<DateRange>({})
   const [loading, setLoading] = useState(true)
   const [selectedPlayer, setSelectedPlayer] = useState<string>("all")
   const [selectedStatType, setSelectedStatType] = useState<string>("all")
@@ -27,10 +34,32 @@ export default function StatsHistoryPage() {
     loadStatUpdates()
     if (selectedPlayer !== "all") {
       loadSnapshotComparison()
+      loadStatsHistory()
     } else {
       setSnapshotComparison(null)
+      setStatsHistoryPoints([])
     }
   }, [selectedPlayer, selectedStatType, selectedSource])
+
+  const loadStatsHistory = async () => {
+    try {
+      if (selectedPlayer !== "all") {
+        const history = await api.getPlayerStatsHistory(parseInt(selectedPlayer), dateRange)
+        setStatsHistoryPoints(history.points)
+      }
+    } catch (error) {
+      console.error("Error loading stats history:", error)
+      setStatsHistoryPoints([])
+    }
+  }
+
+  // Refetch history series when date range changes for the selected player
+  useEffect(() => {
+    if (selectedPlayer !== "all") {
+      loadStatsHistory()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateRange])
 
   const loadStatUpdates = async () => {
     try {
@@ -130,19 +159,11 @@ export default function StatsHistoryPage() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Player</label>
-                <Select value={selectedPlayer} onValueChange={setSelectedPlayer}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="All Players" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Players</SelectItem>
-                    {players.map((player) => (
-                      <SelectItem key={player.id} value={player.id.toString()}>
-                        {player.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <PlayerCombobox
+                  players={players}
+                  value={selectedPlayer}
+                  onChange={setSelectedPlayer}
+                />
               </div>
 
               <div className="space-y-2">
@@ -265,11 +286,18 @@ export default function StatsHistoryPage() {
                   : "Stat progression over time"}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <StatProgressChart
-                updates={statUpdates}
-                statType={selectedStatType === "all" ? "all" : selectedStatType as any}
-              />
+            <CardContent className="space-y-4">
+              {selectedPlayer !== "all" && statsHistoryPoints.length > 0 && (
+                <DateRangePresets value={dateRange} onChange={setDateRange} />
+              )}
+              {selectedPlayer !== "all" && statsHistoryPoints.length > 0 ? (
+                <StatsHistoryChart points={statsHistoryPoints} />
+              ) : (
+                <StatProgressChart
+                  updates={statUpdates}
+                  statType={selectedStatType === "all" ? "all" : selectedStatType as any}
+                />
+              )}
             </CardContent>
           </Card>
 
@@ -280,6 +308,22 @@ export default function StatsHistoryPage() {
             />
           )}
         </div>
+
+        {/* Heatmap, Milestones & Comparison for selected player */}
+        {selectedPlayer !== "all" && statsHistoryPoints.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Heatmap</CardTitle>
+                <CardDescription>G+A gained per day over the last 18 weeks</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ActivityHeatmap points={statsHistoryPoints} />
+              </CardContent>
+            </Card>
+            <StatsComparisonCard playerId={parseInt(selectedPlayer)} />
+          </div>
+        )}
 
         {/* Activity Log Table */}
         <Card>

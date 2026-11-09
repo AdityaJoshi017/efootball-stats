@@ -46,6 +46,8 @@ app.get('/test', (req, res) => {
 app.get('/api/players', playerController.listPlayers);
 app.get('/api/players/:id', playerController.getPlayer);
 app.get('/api/players/:id/matches', matchController.getPlayerMatches);
+app.get('/api/players/:id/stats-history', snapshotController.getPlayerStatsHistory);
+app.get('/api/players/:id/stats-as-of', snapshotController.getPlayerStatsAsOf);
 
 // Stat update routes
 app.get('/api/stat-updates', updateController.getAllStatUpdates);
